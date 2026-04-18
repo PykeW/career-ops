@@ -63,20 +63,7 @@ export interface ContractErrorPayload {
   details?: unknown;
 }
 
-const CV_RESPONSE_CONTENT_PATHS = [
-  "content",
-  "cvContent",
-  "cv",
-  "markdown",
-  "data.content",
-  "data.cvContent",
-  "data.cv",
-  "data.markdown",
-  "result.content",
-  "result.cvContent",
-  "result.cv",
-  "result.markdown",
-];
+const CV_RESPONSE_CONTENT_PATHS = ["content", "cvContent", "cv", "markdown"];
 
 const PROFILE_SNAPSHOT_NAME_PATHS = [
   "snapshot.name",
@@ -201,8 +188,6 @@ const PROFILE_SNAPSHOT_NOTES_PATHS = [
   "snapshot.notes",
   "notes",
   "profileNotes",
-  "data.notes",
-  "result.notes",
 ];
 
 const RESUME_RESULT_FILE_NAME_PATHS = ["fileName"];
@@ -227,9 +212,9 @@ const RESUME_RESULT_SOURCE_PROFILE_PATHS = ["sourceProfilePath"];
 
 const RESUME_RESULT_GENERATED_AT_PATHS = ["generatedAt"];
 
-const ERROR_MESSAGE_PATHS = ["error", "message", "data.error", "data.message"];
+const ERROR_MESSAGE_PATHS = ["error", "message"];
 
-const ERROR_DETAILS_PATHS = ["details", "data.details", "result.details"];
+const ERROR_DETAILS_PATHS = ["details"];
 
 export function buildCvRequest(content = ""): {
   content: string;
@@ -241,17 +226,11 @@ export function buildCvRequest(content = ""): {
 
 export function normalizeCvResponse(payload: unknown): ContractCvResponse {
   const content = pickFirstString(payload, CV_RESPONSE_CONTENT_PATHS);
-  const path = pickFirstString(
-    payload,
-    ["path", "data.path", "result.path"],
-    "cv.md"
-  );
+  const path = pickFirstString(payload, ["path"], "cv.md");
   const exists = pickFirstBoolean(
     payload,
-    ["exists", "data.exists", "result.exists"],
-    Boolean(
-      content || pickFirstString(payload, ["path", "data.path", "result.path"])
-    )
+    ["exists"],
+    Boolean(content || pickFirstString(payload, ["path"]))
   );
 
   return {
@@ -265,33 +244,21 @@ export function normalizeProfileResponse(
   payload: unknown
 ): ContractProfileResponse {
   const profile =
-    pickFirstRecord(payload, ["profile", "data.profile", "result.profile"]) ||
+    pickFirstRecord(payload, ["profile"]) ||
     (looksLikeProfileRecord(payload) ? asRecord(payload) : null);
-  const raw = pickFirstString(payload, ["raw", "data.raw", "result.raw"]);
-  const path = pickFirstString(payload, ["path", "data.path", "result.path"]);
+  const raw = pickFirstString(payload, ["raw"]);
+  const path = pickFirstString(payload, ["path"]);
   const notes = uniqueStrings(
     stringArrayFromPaths(payload, PROFILE_SNAPSHOT_NOTES_PATHS)
   );
   const exists = pickFirstBoolean(
     payload,
-    [
-      "exists",
-      "data.exists",
-      "result.exists",
-      "hasProfile",
-      "profile.hasProfile",
-    ],
+    ["exists", "hasProfile", "profile.hasProfile"],
     Boolean(profile || raw || getNestedValue(payload, "snapshot"))
   );
   const source = pickFirstString(
     payload,
-    [
-      "source",
-      "profileSource",
-      "snapshot.source",
-      "data.source",
-      "result.source",
-    ],
+    ["source", "profileSource", "snapshot.source"],
     exists ? path || "profile" : "fallback"
   );
   const snapshot = normalizeProfileSnapshot(payload, {
@@ -371,29 +338,17 @@ export function normalizeResumeResult(payload: unknown): ContractResumeResult {
   );
 
   return {
-    ok: pickFirstBoolean(payload, ["ok", "data.ok", "result.ok"], true),
-    artifactType: pickFirstString(
-      payload,
-      ["artifactType", "data.artifactType", "result.artifactType"],
-      "markdown"
-    ),
+    ok: pickFirstBoolean(payload, ["ok"], true),
+    artifactType: pickFirstString(payload, ["artifactType"], "markdown"),
     contentType: pickFirstString(
       payload,
-      ["contentType", "data.contentType", "result.contentType"],
+      ["contentType"],
       "text/markdown; charset=utf-8"
     ),
-    language: pickFirstString(
-      payload,
-      ["language", "data.language", "result.language"],
-      "en"
-    ),
+    language: pickFirstString(payload, ["language"], "en"),
     fileName,
     downloadPath,
-    outputPath: pickFirstString(payload, [
-      "outputPath",
-      "data.outputPath",
-      "result.outputPath",
-    ]),
+    outputPath: pickFirstString(payload, ["outputPath"]),
     previewMarkdown,
     company,
     targetRole,

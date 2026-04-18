@@ -3,31 +3,23 @@ export const CONTRACT_VERSION = '2026-04-19';
 export const CV_CONTENT_ALIASES = ['cvContent', 'cv', 'markdown'];
 export const CV_REQUEST_FIELDS = ['content', ...CV_CONTENT_ALIASES];
 export const CV_RESPONSE_PATHS = {
-  exists: ['exists', 'data.exists', 'result.exists'],
-  path: ['path', 'data.path', 'result.path'],
+  exists: ['exists'],
+  path: ['path'],
   content: [
     'content',
     'cvContent',
     'cv',
     'markdown',
-    'data.content',
-    'data.cvContent',
-    'data.cv',
-    'data.markdown',
-    'result.content',
-    'result.cvContent',
-    'result.cv',
-    'result.markdown',
   ],
 };
 
 export const PROFILE_RESPONSE_PATHS = {
-  exists: ['exists', 'data.exists', 'result.exists', 'hasProfile', 'profile.hasProfile'],
-  path: ['path', 'data.path', 'result.path'],
-  profile: ['profile', 'data.profile', 'result.profile'],
-  raw: ['raw', 'data.raw', 'result.raw'],
-  source: ['source', 'profileSource', 'snapshot.source', 'data.source', 'result.source'],
-  notes: ['notes', 'profileNotes', 'snapshot.notes', 'data.notes', 'result.notes'],
+  exists: ['exists', 'hasProfile', 'profile.hasProfile'],
+  path: ['path'],
+  profile: ['profile'],
+  raw: ['raw'],
+  source: ['source', 'profileSource', 'snapshot.source'],
+  notes: ['notes', 'profileNotes', 'snapshot.notes'],
 };
 
 export const RESUME_REQUEST_FIELDS = {
@@ -54,10 +46,9 @@ export const RESUME_RESULT_PATHS = {
   sourceProfilePath: ['sourceProfilePath'],
   generatedAt: ['generatedAt'],
 };
-
 export const ERROR_PAYLOAD_PATHS = {
-  error: ['error', 'message', 'data.error', 'data.message'],
-  details: ['details', 'data.details', 'result.details'],
+  error: ['error', 'message'],
+  details: ['details'],
 };
 
 export function buildCvRequest(content = '') {
@@ -142,7 +133,7 @@ export function normalizeProfileResponse(payload = {}) {
   const exists = pickFirstBooleanAtPaths(
     payload,
     PROFILE_RESPONSE_PATHS.exists,
-    Boolean(profile || raw || pickFirstObjectAtPaths(payload, ['snapshot', 'data.snapshot', 'result.snapshot']))
+    Boolean(profile || raw || pickFirstObjectAtPaths(payload, ['snapshot']))
   );
   const source = pickFirstStringAtPaths(
     payload,

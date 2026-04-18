@@ -37,22 +37,22 @@ export const RESUME_REQUEST_FIELDS = {
 };
 
 export const RESUME_RESULT_PATHS = {
-  ok: ['ok', 'data.ok', 'result.ok'],
-  artifactType: ['artifactType', 'data.artifactType', 'result.artifactType'],
-  contentType: ['contentType', 'data.contentType', 'result.contentType'],
-  language: ['language', 'data.language', 'result.language'],
-  fileName: ['fileName', 'data.fileName', 'result.fileName'],
-  downloadPath: ['downloadPath', 'data.downloadPath', 'result.downloadPath'],
-  outputPath: ['outputPath', 'data.outputPath', 'result.outputPath'],
-  previewMarkdown: ['previewMarkdown', 'data.previewMarkdown', 'result.previewMarkdown'],
-  company: ['company', 'data.company', 'result.company'],
-  targetRole: ['targetRole', 'data.targetRole', 'result.targetRole'],
-  message: ['message', 'data.message', 'result.message'],
-  keywords: ['keywords', 'data.keywords', 'result.keywords'],
-  notes: ['notes', 'data.notes', 'result.notes'],
-  sourceCvPath: ['sourceCvPath', 'data.sourceCvPath', 'result.sourceCvPath'],
-  sourceProfilePath: ['sourceProfilePath', 'data.sourceProfilePath', 'result.sourceProfilePath'],
-  generatedAt: ['generatedAt', 'data.generatedAt', 'result.generatedAt'],
+  ok: ['ok'],
+  artifactType: ['artifactType'],
+  contentType: ['contentType'],
+  language: ['language'],
+  fileName: ['fileName'],
+  downloadPath: ['downloadPath'],
+  outputPath: ['outputPath'],
+  previewMarkdown: ['previewMarkdown'],
+  company: ['company'],
+  targetRole: ['targetRole'],
+  message: ['message'],
+  keywords: ['keywords'],
+  notes: ['notes'],
+  sourceCvPath: ['sourceCvPath'],
+  sourceProfilePath: ['sourceProfilePath'],
+  generatedAt: ['generatedAt'],
 };
 
 export const ERROR_PAYLOAD_PATHS = {

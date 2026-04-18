@@ -205,67 +205,27 @@ const PROFILE_SNAPSHOT_NOTES_PATHS = [
   "result.notes",
 ];
 
-const RESUME_RESULT_FILE_NAME_PATHS = [
-  "fileName",
-  "data.fileName",
-  "result.fileName",
-];
+const RESUME_RESULT_FILE_NAME_PATHS = ["fileName"];
 
-const RESUME_RESULT_PREVIEW_PATHS = [
-  "previewMarkdown",
-  "result.previewMarkdown",
-  "data.previewMarkdown",
-];
+const RESUME_RESULT_PREVIEW_PATHS = ["previewMarkdown"];
 
-const RESUME_RESULT_COMPANY_PATHS = [
-  "company",
-  "data.company",
-  "result.company",
-];
+const RESUME_RESULT_COMPANY_PATHS = ["company"];
 
-const RESUME_RESULT_TARGET_ROLE_PATHS = [
-  "targetRole",
-  "data.targetRole",
-  "result.targetRole",
-];
+const RESUME_RESULT_TARGET_ROLE_PATHS = ["targetRole"];
 
-const RESUME_RESULT_MESSAGE_PATHS = [
-  "message",
-  "data.message",
-  "result.message",
-];
+const RESUME_RESULT_MESSAGE_PATHS = ["message"];
 
-const RESUME_RESULT_DOWNLOAD_PATHS = [
-  "downloadPath",
-  "data.downloadPath",
-  "result.downloadPath",
-];
+const RESUME_RESULT_DOWNLOAD_PATHS = ["downloadPath"];
 
-const RESUME_RESULT_KEYWORDS_PATHS = [
-  "keywords",
-  "data.keywords",
-  "result.keywords",
-];
+const RESUME_RESULT_KEYWORDS_PATHS = ["keywords"];
 
-const RESUME_RESULT_NOTES_PATHS = ["notes", "data.notes", "result.notes"];
+const RESUME_RESULT_NOTES_PATHS = ["notes"];
 
-const RESUME_RESULT_SOURCE_CV_PATHS = [
-  "sourceCvPath",
-  "data.sourceCvPath",
-  "result.sourceCvPath",
-];
+const RESUME_RESULT_SOURCE_CV_PATHS = ["sourceCvPath"];
 
-const RESUME_RESULT_SOURCE_PROFILE_PATHS = [
-  "sourceProfilePath",
-  "data.sourceProfilePath",
-  "result.sourceProfilePath",
-];
+const RESUME_RESULT_SOURCE_PROFILE_PATHS = ["sourceProfilePath"];
 
-const RESUME_RESULT_GENERATED_AT_PATHS = [
-  "generatedAt",
-  "data.generatedAt",
-  "result.generatedAt",
-];
+const RESUME_RESULT_GENERATED_AT_PATHS = ["generatedAt"];
 
 const ERROR_MESSAGE_PATHS = ["error", "message", "data.error", "data.message"];
 

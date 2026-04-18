@@ -8,7 +8,9 @@ The primary local app entrypoints now live at the repository root:
 - `npm run frontend:dev` for the Vite app only
 - `npm run dev` to run both together from the root directory
 
-`npm run web` still works, but it only forwards to `backend/server.mjs` as a deprecated compatibility shim. The split `backend/` + `frontend/` layout is the main development path.
+`shared/contracts/api-contract.*` is the canonical frontend/backend boundary. When request or response shapes change, update the shared helpers, align backend + frontend consumers, and keep `docs/API_CONTRACT.md` in sync in the same change.
+
+`npm run web` still works, but it only forwards to `backend/server.mjs` as a deprecated compatibility shim. The split `backend/` + `frontend/` layout is the main development path, and no new business logic should land in `web/server.mjs`.
 
 ## Dev commands
 
@@ -16,15 +18,13 @@ The primary local app entrypoints now live at the repository root:
 npm run backend:dev
 npm run backend:start
 npm run backend:check
-```
-
-If you also need the frontend locally, install its dependencies once and then use the root wrappers:
-
-```bash
 npm install --prefix frontend
 npm run frontend:dev
-npm run dev
+npm run frontend:build
+node test-all.mjs --quick
 ```
+
+Use `npm run backend:check` for backend syntax smoke, `npm run frontend:build` after contract/client changes, and `node test-all.mjs --quick` before opening a PR that touches the split app or shared contract surface.
 
 Defaults:
 
@@ -53,6 +53,6 @@ The markdown resume flow no longer depends on `templates/cv-template.html` or `g
 - `POST /api/resume/generate`
 - `GET /api/resume/download/:fileName`
 
-`PUT /api/cv` accepts `content` as the canonical request body field. Aliases accepted for compatibility: `cvContent`, `cv`, `markdown`.
+`PUT /api/cv` accepts `content` as the canonical request body field. Aliases accepted for compatibility today: `cvContent`, `cv`, `markdown`. New frontend code should send canonical `content` only.
 
-`POST /api/resume/generate` requires `jobDescription`. Optional fields: `company`, `companyName`, `targetRole`, `role`. The backend saves a tailored `.md` resume in `output/`, returns the generated content inline, and provides a markdown download path. It only reorganizes/highlights material already present in `cv.md`.
+`POST /api/resume/generate` requires `jobDescription`. Optional compatibility aliases still accepted for migration: `companyName` and `role`, while canonical clients should use `company` and `targetRole`. The backend saves a tailored `.md` resume in `output/`, returns the generated content inline, and provides a markdown download path. It only reorganizes/highlights material already present in `cv.md`.

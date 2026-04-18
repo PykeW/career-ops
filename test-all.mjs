@@ -295,6 +295,46 @@ if (fileExists('VERSION')) {
   fail('VERSION file missing');
 }
 
+// ── 11. SPLIT APP SMOKE ──────────────────────────────────────────
+
+console.log('\n11. Split app smoke');
+
+const backendSmoke = run('npm', ['run', 'backend:check'], { stdio: ['pipe', 'pipe', 'pipe'] });
+if (backendSmoke !== null) {
+  pass('Split backend syntax smoke passes');
+} else {
+  fail('Split backend syntax smoke failed');
+}
+
+if (fileExists('frontend/package.json')) {
+  if (fileExists('frontend/node_modules')) {
+    const frontendSmoke = run('npm', ['run', 'frontend:build'], { stdio: ['pipe', 'pipe', 'pipe'] });
+    if (frontendSmoke !== null) {
+      pass('Split frontend build smoke passes');
+    } else {
+      fail('Split frontend build smoke failed');
+    }
+  } else {
+    warn('Split frontend dependencies missing; run `npm install --prefix frontend` before smoke validation');
+  }
+} else {
+  warn('frontend/package.json missing; split frontend smoke skipped');
+}
+
+if (fileExists('web/server.mjs')) {
+  const webShim = readFile('web/server.mjs');
+  if (
+    webShim.includes('CAREER_OPS_WEB_SHIM_DEPRECATED') &&
+    webShim.includes("../backend/server.mjs")
+  ) {
+    pass('Deprecated web shim stays thin and forwards to backend/server.mjs');
+  } else {
+    fail('web/server.mjs is missing the expected deprecation shim guard');
+  }
+} else {
+  fail('web/server.mjs missing');
+}
+
 // ── SUMMARY ─────────────────────────────────────────────────────
 
 console.log('\n' + '='.repeat(50));

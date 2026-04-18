@@ -39,15 +39,7 @@ const elements = {
 };
 
 const resultLinkLabels = {
-  downloadUrl: "Download PDF",
-  openUrl: "Open resume",
-  url: "Open result",
-  downloadPath: "Download PDF",
-  openPath: "Open resume",
-  path: "Open generated file",
-  outputPath: "Open generated file",
-  pdfPath: "Open generated file",
-  filePath: "Open generated file",
+  downloadPath: "Download .md",
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -228,19 +220,14 @@ async function generateResume(event) {
 
   const payload = { jobDescription };
   const company = elements.companyInput.value.trim();
-  const role = elements.roleInput.value.trim();
-  const format = elements.formatSelect.value;
+  const targetRole = elements.roleInput.value.trim();
 
   if (company) {
     payload.company = company;
   }
 
-  if (role) {
-    payload.role = role;
-  }
-
-  if (format) {
-    payload.format = format;
+  if (targetRole) {
+    payload.targetRole = targetRole;
   }
 
   state.generating = true;
@@ -257,27 +244,28 @@ async function generateResume(event) {
   updateUi();
 
   try {
-    const response = await fetchJson("/api/resume/generate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+    const response = normalizeResumeResult(
+      await fetchJson("/api/resume/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      })
+    );
 
     const metadata = collectMetadata(response);
     const links = collectLinks(response);
-    const successMessage =
-      typeof response.message === "string" && response.message.trim()
-        ? response.message.trim()
-        : links.length
-        ? "Resume generated successfully. Use the link below to open or download the result."
-        : "Resume generated successfully. The backend did not include a direct file link.";
+    const successMessage = response.message
+      ? response.message
+      : links.length
+      ? "Resume generated successfully. Use the link below to download the result."
+      : "Resume generated successfully. The backend did not include a direct file link.";
 
     setResult({
       tone: "success",
       stateLabel: "Ready",
-      title: buildResultTitle(response, company, role),
+      title: buildResultTitle(response, company, targetRole),
       message: successMessage,
       metadata,
       links,
@@ -414,35 +402,25 @@ function collectMetadata(response) {
   }
 
   const entries = [];
-  const seen = new Set();
-  const preferredKeys = [
-    "company",
-    "role",
-    "format",
-    "filename",
-    "generatedAt",
-    "pageCount",
-    "pages",
-    "keywordCoverage",
-    "coverage",
-    "status",
-  ];
 
-  for (const key of preferredKeys) {
-    addMetadataEntry(entries, seen, key, response[key]);
-  }
+  addMetadataEntry(entries, "company", response.company);
+  addMetadataEntry(entries, "targetRole", response.targetRole);
+  addMetadataEntry(entries, "fileName", response.fileName);
+  addMetadataEntry(entries, "generatedAt", response.generatedAt);
+  addMetadataEntry(entries, "artifactType", response.artifactType);
+  addMetadataEntry(entries, "language", response.language);
+  addMetadataEntry(entries, "sourceCvPath", response.sourceCvPath);
+  addMetadataEntry(entries, "sourceProfilePath", response.sourceProfilePath);
 
-  if (response.metadata && typeof response.metadata === "object") {
-    for (const [key, value] of Object.entries(response.metadata)) {
-      addMetadataEntry(entries, seen, key, value);
-    }
+  if (Array.isArray(response.keywords) && response.keywords.length) {
+    addMetadataEntry(entries, "keywords", response.keywords.join(", "));
   }
 
   return entries;
 }
 
-function addMetadataEntry(entries, seen, key, value) {
-  if (seen.has(key) || value === undefined || value === null) {
+function addMetadataEntry(entries, key, value) {
+  if (value === undefined || value === null) {
     return;
   }
 
@@ -459,63 +437,36 @@ function addMetadataEntry(entries, seen, key, value) {
     label: humanizeKey(key),
     value: normalized,
   });
-  seen.add(key);
 }
 
 function collectLinks(response) {
-  if (!response || typeof response !== "object") {
+  const href = normalizeDownloadHref(
+    response?.downloadPath,
+    response?.fileName
+  );
+  if (!href) {
     return [];
   }
 
-  const links = [];
-  const seen = new Set();
-  const candidates = [];
-
-  for (const [key, value] of Object.entries(response)) {
-    candidates.push([key, value]);
-  }
-
-  if (response.links && typeof response.links === "object") {
-    for (const [key, value] of Object.entries(response.links)) {
-      candidates.push([key, value]);
-    }
-  }
-
-  for (const [key, value] of candidates) {
-    if (typeof value !== "string") {
-      continue;
-    }
-
-    const href = value.trim();
-    if (!href || !isProbablyLinkValue(href) || seen.has(href)) {
-      continue;
-    }
-
-    links.push({
-      label:
-        resultLinkLabels[key] ||
-        (key.toLowerCase().includes("download")
-          ? "Download PDF"
-          : "Open result"),
+  return [
+    {
+      label: resultLinkLabels.downloadPath,
       href,
-    });
-    seen.add(href);
-  }
-
-  return links;
+    },
+  ];
 }
 
 function buildResultTitle(response, fallbackCompany, fallbackRole) {
   const company = stringify(response?.company) || fallbackCompany;
-  const role = stringify(response?.role) || fallbackRole;
-  const filename = stringify(response?.filename);
+  const targetRole = stringify(response?.targetRole) || fallbackRole;
+  const fileName = stringify(response?.fileName);
 
-  if (company && role) {
-    return company + " - " + role;
+  if (company && targetRole) {
+    return company + " - " + targetRole;
   }
 
-  if (filename) {
-    return filename;
+  if (fileName) {
+    return fileName;
   }
 
   return "Tailored resume ready";

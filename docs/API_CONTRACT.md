@@ -1,6 +1,6 @@
 # Shared API Contract
 
-This document defines the canonical frontend/backend payload shapes for the split `backend/` + `frontend/` app while preserving compatibility with older aliases.
+This document defines the canonical frontend/backend payload shapes for the split `backend/` + `frontend/` app while preserving the remaining CV compatibility aliases during migration.
 
 ## Canonical request shapes
 

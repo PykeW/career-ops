@@ -127,7 +127,7 @@ node test-all.mjs --quick
 
 Use `npm run backend:check` for API syntax smoke, `npm run frontend:install && npm run frontend:build` after frontend/client changes, and `node test-all.mjs --quick` before opening a PR that touches the split app, shared contracts, or migration docs.
 
-`npm run web` still works for compatibility, but it only forwards to `backend/server.mjs` and should be treated as a deprecated shim. Do not add new business logic, compatibility branches, or contract handling there. We are not enabling npm workspaces in this change: the frontend still has its own install lifecycle, and root scripts can expose clean entrypoints with `npm --prefix frontend ...` without changing the repository's dependency layout. For request/response shapes and alias retirement, update `shared/contracts/api-contract.*` first, keep [docs/API_CONTRACT.md](docs/API_CONTRACT.md) in sync, and prefer canonical fields even while migration aliases remain temporarily available.
+`npm run web` still works for compatibility, but it only forwards to `backend/server.mjs` and should be treated as a deprecated shim. Do not add new business logic, compatibility branches, or contract handling there. We are not enabling npm workspaces in this change: the frontend still has its own install lifecycle, and root scripts can expose clean entrypoints with `npm --prefix frontend ...` without changing the repository's dependency layout. For request/response shapes and alias retirement, update `shared/contracts/api-contract.*` first, keep [docs/API_CONTRACT.md](docs/API_CONTRACT.md) in sync, and prefer canonical fields. Today only the CV save/load helpers still normalize legacy aliases; resume generate requests and responses are canonical-only.
 
 ## Usage
 

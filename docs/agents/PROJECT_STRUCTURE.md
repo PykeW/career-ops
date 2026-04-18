@@ -41,7 +41,7 @@ career-ops/
 ├── reports/
 ├── output/
 └── *.mjs
-
+```
 
 ## Major Directories
 
@@ -49,8 +49,8 @@ career-ops/
 | --------------------- | ------------------------------------------------------------------------------------------- |
 | `backend/`            | Contains the dedicated local API service used by the split app runtime.                     |
 | `frontend/`           | Contains the Vite + React UI, including `frontend/src/App.tsx` as the main entrypoint.      |
-| `shared/`             | Holds the shared frontend/backend contract helpers and cross-runtime types.                  |
-| `web/`                | Keeps the deprecated forwarding shim for the pre-split backend entrypoint.                   |
+| `shared/`             | Holds the shared frontend/backend contract helpers and cross-runtime types.                 |
+| `web/`                | Keeps the deprecated forwarding shim for the pre-split backend entrypoint.                  |
 | `config/`             | Holds checked-in configuration templates such as `profile.example.yml`.                     |
 | `modes/`              | Contains the shared workflow instructions plus language-specific mode directories.          |
 | `batch/`              | Stores the batch prompt, runner script, worker logs, and tracker additions.                 |
@@ -97,4 +97,3 @@ For canonical workflow boundaries, also review [DATA_CONTRACT.md](../../DATA_CON
 - [Overview](../../AGENTS.md#project-structure)
 - [Architecture](SYSTEM_ARCHITECTURE.md)
 - [Development](DEVELOPMENT_WORKFLOW.md)
-```

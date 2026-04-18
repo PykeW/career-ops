@@ -1,8 +1,9 @@
-import { access, readFile, writeFile } from 'fs/promises';
-
+import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname } from 'node:path';
 import yaml from 'js-yaml';
 
-import { cvPath, profilePath } from './project-paths.mjs';
+import { createHttpError } from './http.mjs';
+import { cvPath, profilePath, toProjectRelativePath } from './project-paths.mjs';
 
 const parseYaml = yaml.load;
 
@@ -13,6 +14,10 @@ export async function fileExists(filePath) {
   } catch {
     return false;
   }
+}
+
+function normalizeLineEndings(content) {
+  return content.replace(/\r\n/g, '\n');
 }
 
 export async function readCvFile() {
@@ -27,6 +32,37 @@ export async function readCvFile() {
 export async function writeCvFile(content) {
   await writeFile(cvPath, content, 'utf-8');
   return { content, path: 'cv.md' };
+}
+
+export async function getCvDocument(paths) {
+  const relativePath = toProjectRelativePath(paths.rootDir, paths.cvPath);
+
+  if (!(await fileExists(paths.cvPath))) {
+    return {
+      exists: false,
+      content: '',
+      path: relativePath,
+    };
+  }
+
+  const content = await readFile(paths.cvPath, 'utf8');
+
+  return {
+    exists: true,
+    content,
+    path: relativePath,
+  };
+}
+
+export async function saveCvDocument(paths, content) {
+  if (typeof content !== 'string') {
+    throw createHttpError(400, 'Request body field `content` must be a string');
+  }
+
+  await mkdir(dirname(paths.cvPath), { recursive: true });
+  await writeFile(paths.cvPath, normalizeLineEndings(content), 'utf8');
+
+  return getCvDocument(paths);
 }
 
 export async function readProfileInfo(options = {}) {
@@ -213,4 +249,34 @@ function displayUrl(value) {
     .replace(/^mailto:/i, '')
     .replace(/^https?:\/\//i, '')
     .replace(/\/$/, '');
+}
+
+export async function getProfileDocument(paths) {
+  const relativePath = toProjectRelativePath(paths.rootDir, paths.profilePath);
+
+  if (!(await fileExists(paths.profilePath))) {
+    return {
+      exists: false,
+      path: relativePath,
+      profile: null,
+      raw: '',
+    };
+  }
+
+  const raw = await readFile(paths.profilePath, 'utf8');
+
+  try {
+    return {
+      exists: true,
+      path: relativePath,
+      profile: raw.trim() ? (parseYaml(raw) ?? null) : null,
+      raw,
+    };
+  } catch (error) {
+    throw createHttpError(
+      500,
+      `Failed to parse profile YAML at ${relativePath}`,
+      error.message
+    );
+  }
 }

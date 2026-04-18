@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Career Ops Resume Studio</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">career-ops local ui</p>
+          <h1>CV editor and tailored resume generator</h1>
+          <p>
+            Edit the canonical <code>cv.md</code>, save it explicitly, and then
+            generate a targeted PDF from the latest saved CV plus a job
+            description.
+          </p>
+        </div>
+
+        <aside class="profile-card" id="profileCard" aria-live="polite">
+          <p class="section-kicker">Profile</p>
+          <h2 id="profileName">Loading profile...</h2>
+          <p id="profileMeta" class="muted">
+            Candidate details from <code>/api/profile</code> will appear here if
+            available.
+          </p>
+        </aside>
+      </header>
+
+      <main class="workspace">
+        <section class="panel" aria-labelledby="cvEditorTitle">
+          <div class="panel-header">
+            <div>
+              <p class="section-kicker">Source of truth</p>
+              <h2 id="cvEditorTitle">CV editor</h2>
+            </div>
+            <div class="panel-actions">
+              <span class="status-pill" id="cvLoadState">Loading CV...</span>
+              <button class="button primary" id="saveCvButton" type="button">
+                Save CV
+              </button>
+            </div>
+          </div>
+
+          <p class="panel-description">
+            Your local edits stay in the editor until you save them. Resume
+            generation always uses the latest saved snapshot on disk.
+          </p>
+
+          <div class="notice" id="saveFeedback" role="status" aria-live="polite">
+            Loading <code>/api/cv</code>...
+          </div>
+
+          <label class="field" for="cvEditor">
+            <span class="field-label">cv.md content</span>
+            <textarea
+              id="cvEditor"
+              spellcheck="false"
+              placeholder="Load or draft your CV content here"
+            ></textarea>
+          </label>
+
+          <div class="panel-footer">
+            <span id="cvStats">0 characters</span>
+            <span id="dirtyNotice" class="muted">No local changes yet.</span>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="resumeGeneratorTitle">
+          <div class="panel-header">
+            <div>
+              <p class="section-kicker">Tailor and export</p>
+              <h2 id="resumeGeneratorTitle">Resume generator</h2>
+            </div>
+            <span class="status-pill neutral" id="resultState">Idle</span>
+          </div>
+
+          <p class="panel-description">
+            Add job requirements, optional company and role context, then ask the
+            backend to build a tailored PDF.
+          </p>
+
+          <form id="generateForm" class="generator-form">
+            <div class="field-grid">
+              <label class="field" for="companyInput">
+                <span class="field-label">Company</span>
+                <input id="companyInput" name="company" type="text" placeholder="Optional" />
+              </label>
+
+              <label class="field" for="roleInput">
+                <span class="field-label">Role</span>
+                <input id="roleInput" name="role" type="text" placeholder="Optional" />
+              </label>
+
+              <label class="field" for="formatSelect">
+                <span class="field-label">Format</span>
+                <select id="formatSelect" name="format">
+                  <option value="">Auto</option>
+                  <option value="a4">A4</option>
+                  <option value="letter">Letter</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="field" for="jobDescriptionInput">
+              <span class="field-label">Job description / requirements</span>
+              <textarea
+                id="jobDescriptionInput"
+                name="jobDescription"
+                placeholder="Paste the job description, responsibilities, and requirements"
+                required
+              ></textarea>
+            </label>
+
+            <div class="panel-footer generator-footer">
+              <div class="helper-stack">
+                <span id="generateHint" class="muted">
+                  Save CV changes before generating if you want them included.
+                </span>
+                <span id="jobDescriptionStats">0 characters</span>
+              </div>
+              <button class="button primary" id="generateButton" type="submit">
+                Generate PDF
+              </button>
+            </div>
+          </form>
+
+          <section class="result-card" id="resultCard" aria-live="polite">
+            <div class="result-header">
+              <div>
+                <p class="section-kicker">Output</p>
+                <h3 id="resultTitle">No resume generated yet</h3>
+              </div>
+            </div>
+            <p id="resultMessage" class="result-message">
+              Save your CV, paste a job description, and generate a tailored
+              resume PDF.
+            </p>
+            <dl id="resultMetadata" class="metadata-list"></dl>
+            <div id="resultLinks" class="result-links"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,7 +1,17 @@
-export interface CvDocument {
-  content: string;
-  path: string;
-}
+import {
+  buildCvRequest as buildCanonicalCvRequest,
+  buildResumeGenerateRequest as buildCanonicalResumeGenerateRequest,
+  normalizeCvResponse,
+  normalizeErrorPayload,
+  normalizeProfileResponse,
+  normalizeResumeResult,
+  type ContractCvResponse,
+  type ContractErrorPayload,
+  type ContractProfileResponse,
+  type ContractResumeResult,
+} from "../../../shared/contracts/api-contract";
+
+export interface CvDocument extends ContractCvResponse {}
 
 export interface MetadataEntry {
   label: string;
@@ -13,22 +23,7 @@ export interface LinkEntry {
   label: string;
   href: string;
 }
-
-export interface ProfileSnapshot {
-  name: string;
-  headline: string;
-  email: string;
-  location: string;
-  linkedinLabel: string;
-  linkedinUrl: string;
-  portfolioLabel: string;
-  portfolioUrl: string;
-  github: string;
-  targetRoles: string[];
-  hasProfile: boolean;
-  source: string;
-  notes: string[];
-}
+export type ProfileSnapshot = ContractProfileResponse["snapshot"];
 
 export interface ResumeResult {
   previewMarkdown: string;
@@ -43,17 +38,24 @@ export interface ResumeResult {
 
 export interface ApiError extends Error {
   status?: number;
-  payload?: unknown;
+  payload?: ContractErrorPayload | unknown;
 }
 
 const ABSOLUTE_URL_PATTERN = /^[a-z][a-z\d+.-]*:\/\//i;
 const FILE_LIKE_PATTERN = /\.[a-z\d]{1,8}(?:[?#].*)?$/i;
 const HUMANIZED_LABELS: Record<string, string> = {
+  artifactType: "Artifact type",
+  company: "Company",
   companyName: "Company",
   fileName: "File name",
   filename: "File name",
   generatedAt: "Generated at",
   keywordCoverage: "Keyword coverage",
+  language: "Language",
+  role: "Role",
+  sourceCvPath: "Source CV",
+  sourceProfilePath: "Source profile",
+  status: "Status",
   targetRole: "Role",
 };
 
@@ -83,241 +85,68 @@ export async function fetchJson<T = unknown>(
   const payload = text ? safeJsonParse(text) : {};
 
   if (!response.ok) {
-    const error = new Error(
-      getPayloadMessage(payload, response.status)
-    ) as ApiError;
+    const errorPayload = normalizeErrorPayload(
+      payload,
+      `Request failed with status ${response.status}`
+    );
+    const error = new Error(errorPayload.error) as ApiError;
     error.status = response.status;
-    error.payload = payload;
+    error.payload = errorPayload;
     throw error;
   }
 
   return (payload && typeof payload === "object" ? payload : {}) as T;
 }
 
+export function buildCvRequest(
+  content: string
+): ReturnType<typeof buildCanonicalCvRequest> {
+  return buildCanonicalCvRequest(content);
+}
+
+export function buildResumeGenerateRequest(payload: {
+  jobDescription: string;
+  company?: string;
+  targetRole?: string;
+}): Record<string, string> {
+  return buildCanonicalResumeGenerateRequest(payload);
+}
+
 export function extractCvDocument(payload: unknown): CvDocument {
-  return {
-    content: firstNonEmptyString(payload, [
-      "content",
-      "cvContent",
-      "cv",
-      "markdown",
-      "data.content",
-      "data.cvContent",
-      "data.cv",
-      "data.markdown",
-      "result.content",
-      "result.cvContent",
-      "result.cv",
-      "result.markdown",
-    ]),
-    path: firstNonEmptyString(
-      payload,
-      ["path", "data.path", "result.path"],
-      "cv.md"
-    ),
-  };
+  return normalizeCvResponse(payload);
 }
 
 export function extractProfileSnapshot(payload: unknown): ProfileSnapshot {
-  const linkedinUrl = normalizeUrl(
-    firstNonEmptyString(payload, [
-      "candidate.linkedinUrl",
-      "candidate.linkedin_url",
-      "candidate.linkedin",
-      "profile.candidate.linkedinUrl",
-      "profile.candidate.linkedin_url",
-      "profile.candidate.linkedin",
-      "linkedinUrl",
-      "linkedin_url",
-      "linkedin",
-    ])
-  );
-  const portfolioUrl = normalizeUrl(
-    firstNonEmptyString(payload, [
-      "candidate.portfolioUrl",
-      "candidate.portfolio_url",
-      "candidate.website",
-      "candidate.portfolio",
-      "profile.candidate.portfolioUrl",
-      "profile.candidate.portfolio_url",
-      "profile.candidate.website",
-      "portfolioUrl",
-      "portfolio_url",
-      "website",
-      "portfolio",
-    ])
-  );
-
-  const location =
-    firstNonEmptyString(payload, [
-      "candidate.location",
-      "profile.candidate.location",
-      "locationLabel",
-      "location",
-    ]) || formatLocationValue(getNestedValue(payload, "location"));
-
-  return {
-    name: firstNonEmptyString(
-      payload,
-      [
-        "candidate.fullName",
-        "candidate.full_name",
-        "candidate.name",
-        "candidate.displayName",
-        "profile.candidate.fullName",
-        "profile.candidate.full_name",
-        "profile.candidate.name",
-        "fullName",
-        "full_name",
-        "name",
-        "displayName",
-      ],
-      "Profile loaded"
-    ),
-    headline: firstNonEmptyString(payload, [
-      "candidate.headline",
-      "candidate.summary",
-      "narrative.headline",
-      "profile.headline",
-      "headline",
-      "summary",
-    ]),
-    email: firstNonEmptyString(payload, [
-      "candidate.email",
-      "profile.candidate.email",
-      "email",
-    ]),
-    location,
-    linkedinLabel: firstNonEmptyString(
-      payload,
-      [
-        "candidate.linkedin",
-        "candidate.linkedinDisplay",
-        "candidate.linkedin_display",
-        "profile.candidate.linkedin",
-        "profile.candidate.linkedinDisplay",
-        "linkedinDisplay",
-        "linkedin_display",
-      ],
-      displayUrl(linkedinUrl)
-    ),
-    linkedinUrl,
-    portfolioLabel: firstNonEmptyString(
-      payload,
-      [
-        "candidate.portfolioDisplay",
-        "candidate.portfolio_display",
-        "candidate.portfolio",
-        "profile.candidate.portfolioDisplay",
-        "profile.candidate.portfolio_display",
-        "portfolioDisplay",
-        "portfolio_display",
-      ],
-      displayUrl(portfolioUrl)
-    ),
-    portfolioUrl,
-    github: firstNonEmptyString(payload, [
-      "candidate.github",
-      "profile.candidate.github",
-      "github",
-    ]),
-    targetRoles: uniqueStrings([
-      ...stringArrayFromPaths(payload, [
-        "candidate.targetRoles",
-        "candidate.target_roles.primary",
-        "profile.candidate.targetRoles",
-        "profile.candidate.target_roles.primary",
-        "target_roles.primary",
-        "primaryRoles",
-      ]),
-      firstNonEmptyString(payload, ["role", "targetRole"]),
-    ]),
-    hasProfile: firstBoolean(
-      payload,
-      ["hasProfile", "profile.hasProfile"],
-      false
-    ),
-    source: firstNonEmptyString(
-      payload,
-      ["source", "profileSource"],
-      "fallback"
-    ),
-    notes: uniqueStrings([
-      ...stringArrayFromPaths(payload, ["notes", "profileNotes"]),
-    ]),
-  };
+  return normalizeProfileResponse(payload).snapshot;
 }
 
 export function extractResumeResult(payload: unknown): ResumeResult {
-  const fileName = basename(
-    firstNonEmptyString(payload, [
-      "fileName",
-      "filename",
-      "name",
-      "data.fileName",
-      "data.filename",
-      "result.fileName",
-      "result.filename",
-      "resume.fileName",
-      "resume.filename",
-      "output.fileName",
-      "output.filename",
-    ])
-  );
+  const normalized = normalizeResumeResult(payload);
 
   return {
-    previewMarkdown: firstNonEmptyString(payload, [
-      "content",
-      "markdown",
-      "resumeMarkdown",
-      "resume.markdown",
-      "resume.content",
-      "result.markdown",
-      "result.content",
-      "data.markdown",
-      "data.content",
-      "generated.markdown",
-      "generated.content",
-      "output.markdown",
-      "output.content",
-    ]),
-    fileName,
-    company: firstNonEmptyString(payload, [
-      "company",
-      "companyName",
-      "data.company",
-      "data.companyName",
-      "result.company",
-      "result.companyName",
-    ]),
-    role: firstNonEmptyString(payload, [
-      "role",
-      "targetRole",
-      "data.role",
-      "data.targetRole",
-      "result.role",
-      "result.targetRole",
-    ]),
-    message: firstNonEmptyString(payload, [
-      "message",
-      "statusMessage",
-      "data.message",
-      "result.message",
-    ]),
-    metadata: collectMetadata(payload, fileName),
-    links: collectLinks(payload, fileName),
-    notes: uniqueStrings([
-      ...stringArrayFromPaths(payload, [
-        "notes",
-        "data.notes",
-        "result.notes",
-        "metadata.notes",
-      ]),
-    ]),
+    previewMarkdown: normalized.previewMarkdown,
+    fileName: normalized.fileName,
+    company: normalized.company,
+    role: normalized.targetRole,
+    message: normalized.message,
+    metadata: collectMetadata(payload, normalized),
+    links: collectLinks(payload, normalized),
+    notes: normalized.notes,
   };
 }
 
 export function getErrorMessage(error: unknown, fallback: string): string {
+  if (error && typeof error === "object" && "payload" in error) {
+    const errorPayload = normalizeErrorPayload(
+      (error as ApiError).payload,
+      fallback
+    );
+
+    if (errorPayload.error.trim()) {
+      return errorPayload.error.trim();
+    }
+  }
+
   if (error instanceof Error && error.message.trim()) {
     return error.message.trim();
   }
@@ -325,34 +154,25 @@ export function getErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-function collectMetadata(payload: unknown, fileName: string): MetadataEntry[] {
+function collectMetadata(
+  payload: unknown,
+  normalized: ContractResumeResult
+): MetadataEntry[] {
   const entries: MetadataEntry[] = [];
   const seen = new Set<string>();
-  const fields: Array<[string, string[]]> = [
-    ["company", ["company", "companyName", "data.company", "result.company"]],
-    ["role", ["role", "targetRole", "data.role", "result.role"]],
-    ["fileName", ["fileName", "filename", "data.fileName", "result.fileName"]],
-    ["generatedAt", ["generatedAt", "data.generatedAt", "result.generatedAt"]],
-    ["status", ["status", "data.status", "result.status"]],
-    ["source", ["source", "data.source", "result.source"]],
-    [
-      "keywordCoverage",
-      [
-        "keywordCoverage",
-        "coverage",
-        "data.keywordCoverage",
-        "result.keywordCoverage",
-      ],
-    ],
+  const stableFields: Array<[string, string]> = [
+    ["company", normalized.company],
+    ["role", normalized.targetRole],
+    ["fileName", normalized.fileName],
+    ["generatedAt", normalized.generatedAt],
+    ["artifactType", normalized.artifactType],
+    ["language", normalized.language],
+    ["sourceCvPath", normalized.sourceCvPath],
+    ["sourceProfilePath", normalized.sourceProfilePath || ""],
   ];
 
-  for (const [labelKey, paths] of fields) {
-    const value = firstNonEmptyString(
-      payload,
-      paths,
-      labelKey === "fileName" ? fileName : ""
-    );
-    addMetadataEntry(entries, seen, labelKey, value);
+  for (const [key, value] of stableFields) {
+    addMetadataEntry(entries, seen, key, value);
   }
 
   for (const metadataPath of ["metadata", "data.metadata", "result.metadata"]) {
@@ -370,12 +190,37 @@ function collectMetadata(payload: unknown, fileName: string): MetadataEntry[] {
     }
   }
 
+  for (const [key, value] of [
+    ["status", toDisplayString(getNestedValue(payload, "status"))],
+    [
+      "keywordCoverage",
+      toDisplayString(getNestedValue(payload, "keywordCoverage")),
+    ],
+    ["keywordCoverage", toDisplayString(getNestedValue(payload, "coverage"))],
+  ] as Array<[string, string]>) {
+    addMetadataEntry(entries, seen, key, value);
+  }
+
   return entries;
 }
 
-function collectLinks(payload: unknown, fileName: string): LinkEntry[] {
+function collectLinks(
+  payload: unknown,
+  normalized: ContractResumeResult
+): LinkEntry[] {
   const entries: LinkEntry[] = [];
   const seen = new Set<string>();
+  const preferredDownloadHref = normalizePreferredDownloadHref(normalized);
+
+  if (preferredDownloadHref) {
+    entries.push({
+      key: "downloadUrl",
+      label: "Download .md",
+      href: preferredDownloadHref,
+    });
+    seen.add(preferredDownloadHref);
+  }
+
   const candidateObjects = [
     payload,
     getNestedValue(payload, "links"),
@@ -400,7 +245,7 @@ function collectLinks(payload: unknown, fileName: string): LinkEntry[] {
         continue;
       }
 
-      const href = normalizeLinkValue(key, rawValue, fileName);
+      const href = normalizeLinkValue(key, rawValue, normalized.fileName);
       if (!href || seen.has(href)) {
         continue;
       }
@@ -414,16 +259,29 @@ function collectLinks(payload: unknown, fileName: string): LinkEntry[] {
     }
   }
 
-  const derivedDownloadUrl = buildDownloadUrl(fileName);
-  if (derivedDownloadUrl && !seen.has(derivedDownloadUrl)) {
-    entries.unshift({
-      key: "downloadUrl",
-      label: "Download .md",
-      href: derivedDownloadUrl,
-    });
+  return entries;
+}
+
+function normalizePreferredDownloadHref(
+  normalized: ContractResumeResult
+): string {
+  if (normalized.downloadPath) {
+    const preferredHref = normalizeLinkValue(
+      "downloadPath",
+      normalized.downloadPath,
+      normalized.fileName
+    );
+
+    if (preferredHref) {
+      return preferredHref;
+    }
   }
 
-  return entries;
+  if (normalized.fileName) {
+    return buildDownloadUrl(normalized.fileName);
+  }
+
+  return "";
 }
 
 function normalizeLinkValue(
@@ -523,72 +381,12 @@ function normalizeApiBaseUrl(value: string): string {
   return (trimmedValue || DEFAULT_API_BASE_URL).replace(/\/+$/, "");
 }
 
-function firstNonEmptyString(
-  source: unknown,
-  paths: string[],
-  fallback = ""
-): string {
-  for (const path of paths) {
-    const value = getNestedValue(source, path);
-    const displayValue = toDisplayString(value);
-    if (displayValue) {
-      return displayValue;
-    }
+function safeJsonParse(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { raw: text };
   }
-
-  return fallback;
-}
-
-function firstBoolean(
-  source: unknown,
-  paths: string[],
-  fallback: boolean
-): boolean {
-  for (const path of paths) {
-    const value = getNestedValue(source, path);
-    if (typeof value === "boolean") {
-      return value;
-    }
-  }
-
-  return fallback;
-}
-
-function stringArrayFromPaths(source: unknown, paths: string[]): string[] {
-  const values: string[] = [];
-
-  for (const path of paths) {
-    values.push(...coerceStringArray(getNestedValue(source, path)));
-  }
-
-  return values;
-}
-
-function coerceStringArray(value: unknown): string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return value
-    .map((item) => (typeof item === "string" ? item.trim() : ""))
-    .filter(Boolean);
-}
-
-function uniqueStrings(values: Array<string | undefined>): string[] {
-  const seen = new Set<string>();
-  const result: string[] = [];
-
-  for (const value of values) {
-    const trimmedValue = typeof value === "string" ? value.trim() : "";
-    if (!trimmedValue || seen.has(trimmedValue)) {
-      continue;
-    }
-
-    seen.add(trimmedValue);
-    result.push(trimmedValue);
-  }
-
-  return result;
 }
 
 function getNestedValue(source: unknown, path: string): unknown {
@@ -668,24 +466,6 @@ function toDisplayString(value: unknown): string {
   return "";
 }
 
-function safeJsonParse(text: string): unknown {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return { raw: text };
-  }
-}
-
-function getPayloadMessage(payload: unknown, status: number): string {
-  const message = firstNonEmptyString(payload, [
-    "error",
-    "message",
-    "data.error",
-    "data.message",
-  ]);
-  return message || `Request failed with status ${status}`;
-}
-
 function normalizeUrl(value: string): string {
   if (!value.trim()) {
     return "";
@@ -728,6 +508,23 @@ function formatLocationValue(value: unknown): string {
     toDisplayString(record.state),
     toDisplayString(record.country),
   ]).join(", ");
+}
+
+function uniqueStrings(values: Array<string | undefined>): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const value of values) {
+    const trimmedValue = typeof value === "string" ? value.trim() : "";
+    if (!trimmedValue || seen.has(trimmedValue)) {
+      continue;
+    }
+
+    seen.add(trimmedValue);
+    result.push(trimmedValue);
+  }
+
+  return result;
 }
 
 function basename(value: string): string {

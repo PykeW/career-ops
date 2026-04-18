@@ -1,9 +1,13 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
-
 import { getCvDocument, getProfileDocument } from './data.mjs';
 import { createHttpError } from './http.mjs';
 import { toProjectRelativePath } from './project-paths.mjs';
+import {
+  buildResumeResult,
+  normalizeResumeGenerateRequest,
+} from '../../shared/contracts/api-contract.mjs';
+
 
 const SECTION_LABELS = {
   en: {
@@ -609,11 +613,8 @@ function buildMarkdownResume({ parsedCv, profileFields, jobDescription, language
 }
 
 export async function generateResume(paths, payload = {}) {
-  const jobDescription = typeof payload.jobDescription === 'string'
-    ? payload.jobDescription.trim()
-    : typeof payload.jdText === 'string'
-      ? payload.jdText.trim()
-      : '';
+  const request = normalizeResumeGenerateRequest(payload);
+  const { jobDescription, company, targetRole } = request;
 
   if (!jobDescription) {
     throw createHttpError(400, 'Request body field `jobDescription` is required');
@@ -637,7 +638,7 @@ export async function generateResume(paths, payload = {}) {
   const timestampSlug = generatedAt.replace(/[:.]/g, '-');
   const candidateSlug = slugify(profileFields.fullName, 'candidate');
   const resumeSlug = slugify(
-    payload.company || payload.targetRole || competencyKeywords[0] || 'target-role',
+    company || targetRole || competencyKeywords[0] || 'target-role',
     'target-role'
   );
 
@@ -649,8 +650,8 @@ export async function generateResume(paths, payload = {}) {
     keywords: competencyKeywords,
     metadata: {
       generatedAt,
-      company: payload.company || payload.companyName || '',
-      targetRole: payload.targetRole || payload.role || '',
+      company,
+      targetRole,
       sourceCvPath: cvDocument.path,
       sourceProfilePath: profileDocument.exists ? profileDocument.path : '',
     },
@@ -660,20 +661,24 @@ export async function generateResume(paths, payload = {}) {
 
   const fileName = `resume-${candidateSlug}-${resumeSlug}-${timestampSlug}.md`;
   const outputPath = join(paths.outputDir, fileName);
+  const outputPathRelative = toProjectRelativePath(paths.rootDir, outputPath);
+  const downloadPath = `/api/resume/download/${encodeURIComponent(basename(outputPath))}`;
   await writeFile(outputPath, resumeContent, 'utf8');
 
-  return {
+  return buildResumeResult({
     ok: true,
     artifactType: 'markdown',
     contentType: 'text/markdown; charset=utf-8',
     language,
     fileName: basename(outputPath),
-    downloadPath: `/api/resume/download/${encodeURIComponent(basename(outputPath))}`,
-    outputPath: toProjectRelativePath(paths.rootDir, outputPath),
-    content: resumeContent,
+    downloadPath,
+    outputPath: outputPathRelative,
+    previewMarkdown: resumeContent,
+    company,
+    targetRole,
     keywords: competencyKeywords,
     sourceCvPath: cvDocument.path,
     sourceProfilePath: profileDocument.exists ? profileDocument.path : null,
     generatedAt,
-  };
+  });
 }

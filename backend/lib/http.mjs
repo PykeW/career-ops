@@ -1,3 +1,5 @@
+import { buildErrorPayload } from '../../shared/contracts/api-contract.mjs';
+
 const DEFAULT_CORS_ORIGINS = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
@@ -62,10 +64,9 @@ export function buildCorsOptions(env = process.env) {
 }
 
 export function notFoundHandler(req, res) {
-  res.status(404).json({
-    error: 'Not found',
-    path: req.originalUrl,
-  });
+  res.status(404).json(
+    buildErrorPayload('Not found', { path: req.originalUrl })
+  );
 }
 
 export function errorHandler(error, req, res, next) {
@@ -76,14 +77,7 @@ export function errorHandler(error, req, res, next) {
 
   const status = Number.isInteger(error?.status) ? error.status : 500;
   const message = error?.message || 'Internal server error';
-
-  const payload = {
-    error: message,
-  };
-
-  if (error?.details !== undefined) {
-    payload.details = error.details;
-  }
+  const payload = buildErrorPayload(message, error?.details);
 
   if (status >= 500) {
     console.error('[backend] request failed', {

@@ -1,9 +1,13 @@
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import yaml from 'js-yaml';
-
 import { createHttpError } from './http.mjs';
 import { toProjectRelativePath } from './project-paths.mjs';
+import {
+  buildCvResponse,
+  buildProfileResponse,
+} from '../../shared/contracts/api-contract.mjs';
+
 
 async function fileExists(filePath) {
   try {
@@ -22,20 +26,20 @@ export async function getCvDocument(paths) {
   const relativePath = toProjectRelativePath(paths.rootDir, paths.cvPath);
 
   if (!(await fileExists(paths.cvPath))) {
-    return {
+    return buildCvResponse({
       exists: false,
-      content: '',
       path: relativePath,
-    };
+      content: '',
+    });
   }
 
   const content = await readFile(paths.cvPath, 'utf8');
 
-  return {
+  return buildCvResponse({
     exists: true,
-    content,
     path: relativePath,
-  };
+    content,
+  });
 }
 
 export async function saveCvDocument(paths, content) {
@@ -53,23 +57,27 @@ export async function getProfileDocument(paths) {
   const relativePath = toProjectRelativePath(paths.rootDir, paths.profilePath);
 
   if (!(await fileExists(paths.profilePath))) {
-    return {
+    return buildProfileResponse({
       exists: false,
       path: relativePath,
       profile: null,
       raw: '',
-    };
+      source: 'missing',
+    });
   }
 
   const raw = await readFile(paths.profilePath, 'utf8');
 
   try {
-    return {
+    const profile = raw.trim() ? yaml.load(raw) ?? null : null;
+
+    return buildProfileResponse({
       exists: true,
       path: relativePath,
-      profile: raw.trim() ? yaml.load(raw) ?? null : null,
+      profile,
       raw,
-    };
+      source: relativePath,
+    });
   } catch (error) {
     throw createHttpError(
       500,

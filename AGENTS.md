@@ -1,162 +1,296 @@
 # Career-Ops
 
-## On this page
+AI-powered job search operations toolkit for evaluating roles, generating tailored resumes, scanning portals, and tracking applications locally.
 
-- [Overview](#overview)
-- [Technology Stack](#technology-stack)
-- [Project Structure](#project-structure)
-- [Key Features](#key-features)
-- [Getting Started](#getting-started)
-- [Development](#development)
-- [Configuration](#configuration)
-- [Architecture](#architecture)
-- [Contributing](#contributing)
-- [License](#license)
+## Project Name
+
+**Career-Ops** — a local-first, agent-driven job search system that combines workflow prompts, automation scripts, a split frontend/backend app, and optional terminal tooling.
 
 ## Overview
 
-### Purpose
+Career-Ops turns an AI coding CLI into a job-search operating system. The repository helps users evaluate pasted job descriptions or URLs, generate tailored ATS-oriented resumes, scan portals for relevant openings, manage application tracking data, and keep the overall pipeline consistent with verification and normalization scripts. Most workflows are local-file based, with user data stored in markdown, YAML, TSV, and generated artifacts inside the repository.
 
-Career-Ops is an AI-powered job-search pipeline built around the checked-in modes, Node.js scripts, Playwright tooling, and an optional Go dashboard. The repository evaluates job descriptions or URLs, generates ATS-oriented PDFs, scans portals, batch-processes offers, and tracks applications with markdown and TSV files.
+The project is not just a prompt collection. It includes checked-in workflow modes under `modes/`, root Node.js automation scripts, a dedicated Express backend, a Vite + React frontend for editing `cv.md` and generating markdown resumes, a shared API contract layer under `shared/contracts/`, batch-processing helpers for `claude -p`, and an optional Go dashboard for viewing and updating application progress.
 
-For Codex, use this file as the entry point, then route into [`CLAUDE.md`](CLAUDE.md), [`DATA_CONTRACT.md`](DATA_CONTRACT.md), and [`docs/CODEX.md`](docs/CODEX.md). Reuse the existing modes, scripts, templates, and tracker flow rather than creating a parallel automation layer. Keep user-specific customization in `config/profile.yml`, `modes/_profile.md`, `article-digest.md`, and `portals.yml`, and never submit an application on the user's behalf.
-
-### Documentation Map
-
-- [Project Structure](docs/agents/PROJECT_STRUCTURE.md)
-- [Key Features](docs/agents/KEY_FEATURES.md)
-- [Getting Started](docs/agents/GETTING_STARTED.md)
-- [Development](docs/agents/DEVELOPMENT_WORKFLOW.md)
-- [Configuration](docs/agents/CONFIGURATION.md)
-- [Architecture](docs/agents/SYSTEM_ARCHITECTURE.md)
+The repository is intentionally human-in-the-loop. It can evaluate, draft, personalize, organize, and recommend, but it should not auto-submit applications. Personalization belongs in user-layer files such as `config/profile.yml`, `modes/_profile.md`, `article-digest.md`, `portals.yml`, and tracker data under `data/`, while system-layer scripts, templates, and docs stay safe to update according to `DATA_CONTRACT.md`.
 
 ## Technology Stack
 
-### Core Stack
-
-- Node.js 18+ runs the root automation scripts exposed in `package.json`.
-- JavaScript ES modules (`*.mjs`) handle scanning, verification, PDF generation, tracker maintenance, update checks, liveness checks, and related utilities.
-- Playwright provides browser automation for PDF generation and job verification.
-- `js-yaml` backs YAML-driven configuration such as `config/profile.yml` and `portals.yml`.
-- The dashboard in `dashboard/` uses Go, with `dashboard/go.mod` currently declaring `go 1.24.2`.
-
-### Tooling and Infrastructure
-
-- Bubble Tea, Lip Gloss, and related Go dependencies power the terminal dashboard.
-- Markdown, YAML, HTML, TSV, and plain-text files are the main documentation, configuration, and data formats.
-- `.opencode/commands/` mirrors the main workflows as checked-in OpenCode command entrypoints.
-- `.envrc` and `flake.nix` provide optional direnv/Nix support.
-- `fonts/` stores the self-hosted fonts used by PDF generation.
+- **Language / Runtime**
+  - Node.js 18+
+  - JavaScript ES modules (`*.mjs`) for the main automation scripts
+  - TypeScript for the dedicated frontend
+  - Go 1.24.2 for the optional terminal dashboard
+- **Frameworks**
+  - Express 5 backend (`backend/`)
+  - React 18 + Vite frontend (`frontend/`)
+  - Playwright for PDF generation and job verification/liveness checks
+  - Bubble Tea + Lip Gloss for the dashboard TUI
+- **Key Dependencies**
+  - `express`, `cors`, `js-yaml`, `playwright`
+  - `react`, `react-dom`, `typescript`, `vite`
+- **Build / Tooling**
+  - npm scripts from the repository root
+  - TypeScript build via `npm --prefix frontend run build`
+  - Go toolchain for `dashboard/`
+  - Optional `direnv` + Nix via `.envrc` and `flake.nix`
 
 ## Project Structure
 
-### Repository Summary
+```text
+career-ops/
+├── AGENTS.md                    # Root agent-facing project guide
+├── CLAUDE.md                    # Canonical agent workflow rules and onboarding
+├── DATA_CONTRACT.md             # User-layer vs system-layer boundaries
+├── README.md                    # Main product-facing documentation
+├── package.json                 # Root scripts for pipeline, backend, frontend, and tooling
+├── backend/                     # Express API for CV/profile/resume operations
+│   ├── lib/                     # Data, HTTP, path, and resume helpers
+│   └── routes/                  # API route definitions
+├── frontend/                    # Vite + React split-app UI
+│   ├── src/components/          # UI panels/cards
+│   ├── src/hooks/               # Request lifecycle and state hooks
+│   └── src/lib/                 # API helpers and shared UI state helpers
+├── shared/contracts/            # Canonical frontend/backend request-response contract
+├── web/                         # Deprecated compatibility shim forwarding to backend
+├── batch/                       # Batch prompt, runner, logs, and tracker additions
+├── dashboard/                   # Optional Go terminal UI for tracker browsing/updates
+├── config/                      # Profile template and local user profile
+├── templates/                   # PDF, portal-scanner, and canonical status templates
+├── modes/                       # Workflow prompts and language-specific variants
+├── docs/                        # Setup, scripts, API contract, architecture, customization
+│   └── agents/                  # Focused agent-facing reference docs
+├── data/                        # Local tracker and pipeline state
+├── reports/                     # Generated evaluation reports
+├── output/                      # Generated resumes/PDFs and related artifacts
+├── interview-prep/              # Story-bank and company interview notes
+├── jds/                         # Saved job descriptions
+├── fonts/                       # Self-hosted fonts for PDF generation
+└── *.mjs                        # Root automation and validation scripts
+```
 
-The repository is centered on agent instructions (`AGENTS.md`, `CLAUDE.md`), workflow modes in `modes/`, root automation scripts, user-owned data in `data/`, generated artifacts in `reports/` and `output/`, and supporting docs in `docs/`.
+Useful supporting references:
 
-### Reference
-
-See [`docs/agents/PROJECT_STRUCTURE.md`](docs/agents/PROJECT_STRUCTURE.md) for the full repository layout, major directories, and key entrypoints.
+- `docs/agents/PROJECT_STRUCTURE.md`
+- `docs/agents/KEY_FEATURES.md`
+- `docs/agents/DEVELOPMENT_WORKFLOW.md`
+- `docs/agents/CONFIGURATION.md`
+- `docs/agents/SYSTEM_ARCHITECTURE.md`
 
 ## Key Features
 
-### Capability Summary
-
-Career-Ops supports auto-pipeline evaluation, structured offer scoring, ATS-oriented PDF generation, portal scanning, batch processing with `claude -p` workers, tracker integrity tooling, specialized interview and research modes, and an optional dashboard for browsing and updating application status.
-
-### Reference
-
-See [`docs/agents/KEY_FEATURES.md`](docs/agents/KEY_FEATURES.md) for the feature breakdown and file-level anchors.
+- Auto-pipeline evaluation for a pasted job description or job URL
+- Structured multi-block offer analysis and markdown report generation
+- ATS-oriented resume/PDF generation from repository inputs
+- Dedicated split frontend/backend app for CV editing and tailored markdown resume generation
+- Portal scanning with configured companies, queries, and direct ATS/API checks
+- Liveness checks for job postings with Playwright-backed verification
+- Batch processing with parallel `claude -p` workers and resumable state
+- Tracker merge, deduplication, status normalization, and integrity verification
+- Optional Go dashboard for browsing, filtering, previewing, and updating application status
+- Language-specific mode directories for German, French, Japanese, Portuguese, and Russian workflows
 
 ## Getting Started
 
-### Quick Start
+### Prerequisites
 
-1. Install dependencies:
-   ```bash
-   npm install
-   npx playwright install chromium
-   ```
-2. Create the user-layer configuration files from the checked-in templates:
-   ```bash
-   cp config/profile.example.yml config/profile.yml
-   cp modes/_profile.template.md modes/_profile.md
-   cp templates/portals.example.yml portals.yml
-   ```
-3. Add `cv.md` in the repository root, and add `article-digest.md` if you want extra proof points.
-4. Validate the setup:
-   ```bash
-   npm run doctor
-   npm run verify
-   npm run sync-check
-   ```
-5. Start from your preferred client in this repository:
-   - Claude Code is documented in [`README.md`](README.md) and [`docs/SETUP.md`](docs/SETUP.md).
-   - Codex is documented in [`docs/CODEX.md`](docs/CODEX.md).
+- Node.js 18+
+- npm
+- Playwright Chromium (`npx playwright install chromium`)
+- Claude Code or another compatible AI coding CLI for the main agent workflows
+- Optional: Go 1.24+ for the dashboard
+- Optional: `direnv` / Nix if you want the provided development shell
 
-### Reference
+### Installation
 
-See [`docs/agents/GETTING_STARTED.md`](docs/agents/GETTING_STARTED.md) for the condensed startup flow, [`docs/SETUP.md`](docs/SETUP.md) for the fuller setup guide, and [`docs/CODEX.md`](docs/CODEX.md) for Codex-specific routing.
+```bash
+git clone https://github.com/santifer/career-ops.git
+cd career-ops
+npm install
+npm install --prefix frontend
+npx playwright install chromium
+
+cp config/profile.example.yml config/profile.yml
+cp modes/_profile.template.md modes/_profile.md
+cp templates/portals.example.yml portals.yml
+```
+
+Then add your personal files:
+
+- Create `cv.md` in the repository root
+- Optionally create `article-digest.md`
+- Customize `config/profile.yml`, `modes/_profile.md`, and `portals.yml`
+
+Validate the setup:
+
+```bash
+npm run doctor
+npm run verify
+npm run sync-check
+```
+
+### Usage
+
+Basic agent-driven usage:
+
+```bash
+claude
+# then paste a job URL or JD, or use /career-ops
+```
+
+Useful commands:
+
+```bash
+npm run scan                  # Scan portals for new opportunities
+npm run liveness -- <url>     # Check if a posting still looks active
+npm run backend:start         # Start the dedicated backend
+npm run frontend:dev          # Start the Vite frontend
+npm run dev                   # Start backend + frontend together
+```
+
+Batch and dashboard entrypoints:
+
+```bash
+./batch/batch-runner.sh
+cd dashboard && go build -o career-dashboard . && ./career-dashboard --path ..
+```
 
 ## Development
 
-### Common Commands
+### Available Scripts
 
-- `npm run doctor`
-- `npm run verify`
-- `npm run normalize`
-- `npm run dedup`
-- `npm run merge`
-- `npm run pdf`
-- `npm run sync-check`
-- `npm run update:check`
-- `npm run update`
-- `npm run rollback`
-- `npm run liveness`
-- `npm run scan`
+#### Pipeline and data maintenance
 
-If you change the dashboard, build it from `dashboard/` with `go build -o career-dashboard .`.
+- `npm run doctor` — validate prerequisites and required local files
+- `npm run verify` — check tracker/report integrity
+- `npm run normalize` — map status aliases to canonical values
+- `npm run dedup` — remove duplicate tracker entries
+- `npm run merge` — merge batch TSV additions into `data/applications.md`
+- `npm run sync-check` — validate CV/profile consistency and prompt safety
+- `npm run scan` — run the zero-token portal scanner
+- `npm run liveness` — verify whether job URLs still appear active
+- `npm run pdf` — render HTML into a PDF via Playwright
 
-### Reference
+#### App and contract workflows
 
-See [`docs/agents/DEVELOPMENT_WORKFLOW.md`](docs/agents/DEVELOPMENT_WORKFLOW.md) for the agent-oriented workflow summary and [`docs/SCRIPTS.md`](docs/SCRIPTS.md) for the full script reference.
+- `npm run backend:start` — start the Express backend
+- `npm run backend:dev` — start the backend in watch mode
+- `npm run backend:check` — syntax-check the backend route/lib surface
+- `npm run frontend:install` — install frontend dependencies from the root
+- `npm run frontend:dev` — run the Vite frontend
+- `npm run frontend:build` — build the frontend against current shared contracts
+- `npm run frontend:preview` — preview the built frontend
+- `npm run dev` — run backend + frontend together
+- `npm run web` — deprecated compatibility shim; use split-app commands instead
+
+#### Update flow
+
+- `npm run update:check` — check for upstream system updates
+- `npm run update` — apply a system-layer update
+- `npm run rollback` — restore the last system-layer backup created during update
+
+### Development Workflow
+
+1. Start with `AGENTS.md`, `CLAUDE.md`, and `DATA_CONTRACT.md` to understand boundaries.
+2. Keep user-specific data in user-layer files such as `config/profile.yml`, `modes/_profile.md`, `portals.yml`, `data/`, `reports/`, and `output/`.
+3. Reuse the checked-in scripts, templates, and modes rather than creating parallel flows.
+4. Treat `shared/contracts/api-contract.mjs`, `shared/contracts/api-contract.ts`, and `docs/API_CONTRACT.md` as the canonical contract-first boundary for split-app changes.
+5. Keep `web/server.mjs` as a thin deprecated shim only; do not reintroduce business logic there.
+6. Review `batch/README.md` and `batch/batch-prompt.md` together when changing batch behavior.
+7. Build `dashboard/` after Go UI changes.
+8. Follow `CONTRIBUTING.md` for issue-first collaboration, data safety, and prohibited automation.
+
+Recommended validation commands after app or contract changes:
+
+```bash
+npm run backend:check
+npm run frontend:install
+npm run frontend:build
+node test-all.mjs --quick
+```
+
+Additional references:
+
+- `docs/SCRIPTS.md`
+- `docs/SETUP.md`
+- `docs/agents/DEVELOPMENT_WORKFLOW.md`
 
 ## Configuration
 
-### Configuration Summary
+Primary configuration and customization points:
 
-- `config/profile.yml` is the main profile file and is created from `config/profile.example.yml`.
-- `modes/_profile.md` is the user override file and should be created from `modes/_profile.template.md`.
-- `portals.yml` is the scanner configuration copied from `templates/portals.example.yml`.
-- `templates/states.yml` defines the canonical tracker statuses.
-- `DATA_CONTRACT.md` remains the source of truth for user-layer versus system-layer boundaries.
+- `config/profile.yml` — main candidate profile (`candidate`, `target_roles`, `narrative`, `compensation`, `location`)
+- `modes/_profile.md` — personal override file for archetypes, framing, negotiation, and user-specific guidance
+- `portals.yml` — active scanner configuration copied from `templates/portals.example.yml`
+- `cv.md` — canonical CV source of truth used by evaluations and resume generation
+- `article-digest.md` — optional proof-point source for deeper personalization
+- `templates/states.yml` — canonical tracker states used by pipeline scripts and dashboard logic
+- `templates/cv-template.html` — HTML template for the original PDF flow
+- `templates/portals.example.yml` — starter scanner template with tracked companies and search queries
 
-### Reference
+Backend environment overrides:
 
-See [`docs/agents/CONFIGURATION.md`](docs/agents/CONFIGURATION.md) for the summarized configuration map, [`docs/CUSTOMIZATION.md`](docs/CUSTOMIZATION.md) for the canonical customization guide, and [`DATA_CONTRACT.md`](DATA_CONTRACT.md) for edit boundaries.
+- `BACKEND_HOST`
+- `BACKEND_PORT` or `PORT`
+- `BACKEND_CORS_ORIGINS`
+- `CAREER_OPS_ROOT_DIR`
+- `CAREER_OPS_CV_PATH`
+- `CAREER_OPS_PROFILE_PATH`
+- `CAREER_OPS_OUTPUT_DIR`
+
+Optional environment tooling:
+
+- `.envrc` enables `dotenv` + `use flake`
+- `flake.nix` provisions a dev shell with Node.js, Bun, coreutils, and Playwright browsers
+
+Boundary rules:
+
+- `DATA_CONTRACT.md` is the source of truth for user-layer vs system-layer ownership
+- `CLAUDE.md` directs user-specific customization into `config/profile.yml` and `modes/_profile.md`, not `modes/_shared.md`
 
 ## Architecture
 
-### System Summary
+At a high level, Career-Ops has five cooperating layers:
 
-Codex should enter through `AGENTS.md`, then reuse `CLAUDE.md`, `docs/CODEX.md`, and the relevant `modes/*` files. Single-offer flows generate a report, PDF, and tracker addition. Scanner flows read `portals.yml` through `scan.mjs`. Batch flows use `batch/batch-runner.sh` and `batch/batch-prompt.md`. Tracker additions are merged into `data/applications.md`, and the dashboard reads the local tracker state from `dashboard/`.
+1. **Mode and instruction layer** — `modes/`, `CLAUDE.md`, and related docs define how evaluations, scanning, PDF generation, tracking, research, and follow-up flows behave.
+2. **Root automation layer** — root `.mjs` scripts handle scanning, liveness checks, PDF generation, tracker merges, normalization, deduplication, verification, and update flows.
+3. **Split app layer** — `frontend/src/App.tsx` orchestrates a CV editor, profile snapshot card, and tailored resume generator; `backend/routes/api.mjs` and `backend/lib/*.mjs` provide the API surface.
+4. **Shared contract layer** — `shared/contracts/api-contract.*` is the only place where compatibility aliases should intentionally live during migration.
+5. **Operational interfaces** — `batch/` provides parallel worker orchestration, `dashboard/` provides a terminal UI, and `web/server.mjs` remains a deprecated forwarding shim.
 
-### Reference
+Typical data flow:
 
-See [`docs/agents/SYSTEM_ARCHITECTURE.md`](docs/agents/SYSTEM_ARCHITECTURE.md) for the condensed system reference and [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the canonical architecture walkthrough.
+- `cv.md`, `config/profile.yml`, `article-digest.md`, and `portals.yml` provide user context
+- A single-offer workflow generates a report, resume/PDF artifact, and tracker addition
+- Batch workflows write per-offer outputs and merge tracker entries through `merge-tracker.mjs`
+- `data/applications.md` remains the canonical local tracker surface
+- Validation scripts (`verify-pipeline.mjs`, `normalize-statuses.mjs`, `dedup-tracker.mjs`) keep the pipeline consistent
+
+Reference docs:
+
+- `docs/ARCHITECTURE.md`
+- `docs/agents/SYSTEM_ARCHITECTURE.md`
+- `docs/API_CONTRACT.md`
 
 ## Contributing
 
-### Expectations
+Read `CONTRIBUTING.md` before proposing non-trivial changes. The project expects issue-first collaboration, fresh-clone testing for meaningful changes, and respect for repository boundaries.
 
-Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before proposing non-trivial changes. The repository asks contributors to open an issue first, avoid committing personal data, respect the no-auto-submit rule, and avoid disallowed scraping or unapproved external API dependencies.
+Key rules for contributors:
 
-### Reference
-
-See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+- Do not commit personal data such as real CVs, profile files, trackers, reports, or generated outputs
+- Do not add automation that auto-submits applications
+- Do not add scraping for platforms that prohibit automated access
+- Do not add new external API dependencies without prior discussion
+- Keep the split-app contract aligned across `backend/`, `frontend/`, `shared/contracts/`, and `docs/API_CONTRACT.md`
 
 ## License
 
-### Reference
+Career-Ops is released under the **MIT License**. See `LICENSE` for the license text.
 
-Career-Ops is released under the MIT License in [`LICENSE`](LICENSE). Related project policies live in [`LEGAL_DISCLAIMER.md`](LEGAL_DISCLAIMER.md), [`SECURITY.md`](SECURITY.md), [`SUPPORT.md`](SUPPORT.md), and [`GOVERNANCE.md`](GOVERNANCE.md).
+Related policy documents:
+
+- `LEGAL_DISCLAIMER.md`
+- `SECURITY.md`
+- `SUPPORT.md`
+- `GOVERNANCE.md`

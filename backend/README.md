@@ -2,10 +2,28 @@
 
 Dedicated local API service for the separated frontend/backend workflow.
 
-## Dev command
+The primary local app entrypoints now live at the repository root:
+
+- `npm run backend:dev` for the API only
+- `npm run frontend:dev` for the Vite app only
+- `npm run dev` to run both together from the root directory
+
+`npm run web` still works, but it only forwards to `backend/server.mjs` as a deprecated compatibility shim. The split `backend/` + `frontend/` layout is the main development path.
+
+## Dev commands
 
 ```bash
 npm run backend:dev
+npm run backend:start
+npm run backend:check
+```
+
+If you also need the frontend locally, install its dependencies once and then use the root wrappers:
+
+```bash
+npm install --prefix frontend
+npm run frontend:dev
+npm run dev
 ```
 
 Defaults:

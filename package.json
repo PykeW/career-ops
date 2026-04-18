@@ -18,6 +18,11 @@
     "backend:start": "node backend/server.mjs",
     "backend:dev": "node --watch backend/server.mjs",
     "backend:check": "node --check backend/server.mjs && node --check backend/routes/api.mjs && node --check backend/lib/data.mjs && node --check backend/lib/http.mjs && node --check backend/lib/project-paths.mjs && node --check backend/lib/resume.mjs",
+    "frontend:install": "npm install --prefix frontend",
+    "frontend:dev": "npm --prefix frontend run dev",
+    "frontend:build": "npm --prefix frontend run build",
+    "frontend:preview": "npm --prefix frontend run preview",
+    "dev": "sh -c 'trap \"kill 0\" EXIT INT TERM; npm run backend:dev & npm run frontend:dev & wait'",
     "web": "node web/server.mjs"
   },
   "keywords": [

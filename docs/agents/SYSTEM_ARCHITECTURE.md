@@ -18,6 +18,7 @@ This reference summarizes how the checked-in modes, scripts, templates, and data
 
 - `../../AGENTS.md` is the Codex entrypoint and routes readers into `../../CLAUDE.md`, `../../DATA_CONTRACT.md`, and `../CODEX.md`.
 - `../CODEX.md` maps user intent to `../../modes/_shared.md` plus the workflow-specific mode file.
+- The split local app enters through `../../frontend/src/App.tsx`, talks to `../../backend/routes/api.mjs`, and uses `../../shared/contracts/api-contract.*` as its canonical contract boundary.
 - Root `.mjs` scripts handle scanning, PDF generation, liveness checks, tracker normalization, tracker merging, and pipeline verification.
 - The repository keeps tracker data, reports, PDFs, and saved job descriptions in local files rather than a remote application service.
 
@@ -26,6 +27,8 @@ This reference summarizes how the checked-in modes, scripts, templates, and data
 | Component           | Repository anchors                                                                                                | Responsibility                                                                                                   |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | Mode layer          | `../../modes/`                                                                                                    | Defines workflow prompts and routing for evaluation, scanning, PDF generation, tracking, and adjacent workflows. |
+| Split app surface   | `../../frontend/src/App.tsx`, `../../frontend/src/hooks/`, `../../frontend/src/components/`                       | Hosts the dedicated CV editor and resume generator UI and wires the frontend request lifecycle together.         |
+| Shared contracts    | `../../shared/contracts/api-contract.mjs`, `../../shared/contracts/api-contract.ts`                               | Centralizes canonical request/response shapes plus transitional alias normalization.                             |
 | Scanner             | `../../scan.mjs`, `../../templates/portals.example.yml`                                                           | Discovers relevant roles from configured companies and search queries.                                           |
 | PDF generation      | `../../generate-pdf.mjs`, `../../templates/cv-template.html`, `../../fonts/`                                      | Produces ATS-oriented CV PDFs from repository inputs.                                                            |
 | Batch pipeline      | `../../batch/batch-runner.sh`, `../../batch/batch-prompt.md`, `../../batch/README.md`                             | Runs multiple evaluations in parallel and records worker state.                                                  |
@@ -59,6 +62,8 @@ This reference summarizes how the checked-in modes, scripts, templates, and data
 
 - Playwright Chromium is the browser boundary for PDF generation and reliable job verification.
 - The scanner template documents direct careers-page access, structured Greenhouse API access, and broader WebSearch-based discovery.
+- `../../shared/contracts/api-contract.*` is the only place where compatibility aliases should intentionally live during migration; new direct alias parsing in `frontend/` or `backend/` is architectural drift.
+- `../../web/server.mjs` remains a deprecated forwarding shim to `../../backend/server.mjs`; keep it thin and verify it stays that way.
 - `../CODEX.md` says new tracker rows should flow through TSV additions and `merge-tracker.mjs`, not direct manual insertion into `data/applications.md`.
 - `../../CLAUDE.md` and `../../CONTRIBUTING.md` both reinforce the same human-in-the-loop rule: the system can prepare applications, but it should not submit them automatically.
 

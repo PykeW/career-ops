@@ -306,40 +306,31 @@ const RESUME_RESULT_GENERATED_AT_PATHS = [
   "result.generatedAt",
 ];
 
-const ERROR_MESSAGE_PATHS = [
-  "error",
-  "message",
-  "data.error",
-  "data.message",
-];
+const ERROR_MESSAGE_PATHS = ["error", "message", "data.error", "data.message"];
 
-const ERROR_DETAILS_PATHS = [
-  "details",
-  "data.details",
-  "result.details",
-];
+const ERROR_DETAILS_PATHS = ["details", "data.details", "result.details"];
 
 export function buildCvRequest(content = ""): {
   content: string;
-  cvContent: string;
-  cv: string;
-  markdown: string;
 } {
   return {
     content,
-    cvContent: content,
-    cv: content,
-    markdown: content,
   };
 }
 
 export function normalizeCvResponse(payload: unknown): ContractCvResponse {
   const content = pickFirstString(payload, CV_RESPONSE_CONTENT_PATHS);
-  const path = pickFirstString(payload, ["path", "data.path", "result.path"], "cv.md");
+  const path = pickFirstString(
+    payload,
+    ["path", "data.path", "result.path"],
+    "cv.md"
+  );
   const exists = pickFirstBoolean(
     payload,
     ["exists", "data.exists", "result.exists"],
-    Boolean(content || pickFirstString(payload, ["path", "data.path", "result.path"]))
+    Boolean(
+      content || pickFirstString(payload, ["path", "data.path", "result.path"])
+    )
   );
 
   return {
@@ -349,24 +340,45 @@ export function normalizeCvResponse(payload: unknown): ContractCvResponse {
   };
 }
 
-export function normalizeProfileResponse(payload: unknown): ContractProfileResponse {
+export function normalizeProfileResponse(
+  payload: unknown
+): ContractProfileResponse {
   const profile =
     pickFirstRecord(payload, ["profile", "data.profile", "result.profile"]) ||
     (looksLikeProfileRecord(payload) ? asRecord(payload) : null);
   const raw = pickFirstString(payload, ["raw", "data.raw", "result.raw"]);
   const path = pickFirstString(payload, ["path", "data.path", "result.path"]);
-  const notes = uniqueStrings(stringArrayFromPaths(payload, PROFILE_SNAPSHOT_NOTES_PATHS));
+  const notes = uniqueStrings(
+    stringArrayFromPaths(payload, PROFILE_SNAPSHOT_NOTES_PATHS)
+  );
   const exists = pickFirstBoolean(
     payload,
-    ["exists", "data.exists", "result.exists", "hasProfile", "profile.hasProfile"],
+    [
+      "exists",
+      "data.exists",
+      "result.exists",
+      "hasProfile",
+      "profile.hasProfile",
+    ],
     Boolean(profile || raw || getNestedValue(payload, "snapshot"))
   );
   const source = pickFirstString(
     payload,
-    ["source", "profileSource", "snapshot.source", "data.source", "result.source"],
+    [
+      "source",
+      "profileSource",
+      "snapshot.source",
+      "data.source",
+      "result.source",
+    ],
     exists ? path || "profile" : "fallback"
   );
-  const snapshot = normalizeProfileSnapshot(payload, { exists, source, notes, profile });
+  const snapshot = normalizeProfileSnapshot(payload, {
+    exists,
+    source,
+    notes,
+    profile,
+  });
 
   return {
     exists,
@@ -383,25 +395,23 @@ export function normalizeProfileResponse(payload: unknown): ContractProfileRespo
 export function buildResumeGenerateRequest(
   request: ContractResumeGenerateRequest
 ): Record<string, string> {
-  const jobDescription = typeof request.jobDescription === "string"
-    ? request.jobDescription.trim()
-    : "";
-  const company = typeof request.company === "string" ? request.company.trim() : "";
-  const targetRole = typeof request.targetRole === "string" ? request.targetRole.trim() : "";
   const payload: Record<string, string> = {
-    jobDescription,
-    jdText: jobDescription,
-    description: jobDescription,
+    jobDescription:
+      typeof request.jobDescription === "string"
+        ? request.jobDescription.trim()
+        : "",
   };
+  const company =
+    typeof request.company === "string" ? request.company.trim() : "";
+  const targetRole =
+    typeof request.targetRole === "string" ? request.targetRole.trim() : "";
 
   if (company) {
     payload.company = company;
-    payload.companyName = company;
   }
 
   if (targetRole) {
     payload.targetRole = targetRole;
-    payload.role = targetRole;
   }
 
   return payload;
@@ -410,7 +420,11 @@ export function buildResumeGenerateRequest(
 export function normalizeResumeGenerateRequest(
   payload: unknown
 ): ContractResumeGenerateRequest {
-  const jobDescription = pickFirstString(payload, ["jobDescription", "jdText", "description"]).trim();
+  const jobDescription = pickFirstString(payload, [
+    "jobDescription",
+    "jdText",
+    "description",
+  ]).trim();
   const company = pickFirstString(payload, ["company", "companyName"]).trim();
   const targetRole = pickFirstString(payload, ["targetRole", "role"]).trim();
 
@@ -422,7 +436,9 @@ export function normalizeResumeGenerateRequest(
 }
 
 export function normalizeResumeResult(payload: unknown): ContractResumeResult {
-  const fileName = basename(pickFirstString(payload, RESUME_RESULT_FILE_NAME_PATHS));
+  const fileName = basename(
+    pickFirstString(payload, RESUME_RESULT_FILE_NAME_PATHS)
+  );
   const previewMarkdown = pickFirstString(payload, RESUME_RESULT_PREVIEW_PATHS);
   const company = pickFirstString(payload, RESUME_RESULT_COMPANY_PATHS);
   const targetRole = pickFirstString(payload, RESUME_RESULT_TARGET_ROLE_PATHS);
@@ -439,29 +455,49 @@ export function normalizeResumeResult(payload: unknown): ContractResumeResult {
 
   return {
     ok: pickFirstBoolean(payload, ["ok", "data.ok", "result.ok"], true),
-    artifactType: pickFirstString(payload, ["artifactType", "data.artifactType", "result.artifactType"], "markdown"),
+    artifactType: pickFirstString(
+      payload,
+      ["artifactType", "data.artifactType", "result.artifactType"],
+      "markdown"
+    ),
     contentType: pickFirstString(
       payload,
       ["contentType", "data.contentType", "result.contentType"],
       "text/markdown; charset=utf-8"
     ),
-    language: pickFirstString(payload, ["language", "data.language", "result.language"], "en"),
+    language: pickFirstString(
+      payload,
+      ["language", "data.language", "result.language"],
+      "en"
+    ),
     fileName,
     downloadPath,
-    outputPath: pickFirstString(payload, ["outputPath", "data.outputPath", "result.outputPath"]),
+    outputPath: pickFirstString(payload, [
+      "outputPath",
+      "data.outputPath",
+      "result.outputPath",
+    ]),
     previewMarkdown,
     company,
     targetRole,
     message,
-    keywords: uniqueStrings(stringArrayFromPaths(payload, RESUME_RESULT_KEYWORDS_PATHS)),
-    notes: uniqueStrings(stringArrayFromPaths(payload, RESUME_RESULT_NOTES_PATHS)),
+    keywords: uniqueStrings(
+      stringArrayFromPaths(payload, RESUME_RESULT_KEYWORDS_PATHS)
+    ),
+    notes: uniqueStrings(
+      stringArrayFromPaths(payload, RESUME_RESULT_NOTES_PATHS)
+    ),
     sourceCvPath: pickFirstString(payload, RESUME_RESULT_SOURCE_CV_PATHS),
-    sourceProfilePath: pickFirstString(payload, RESUME_RESULT_SOURCE_PROFILE_PATHS) || null,
+    sourceProfilePath:
+      pickFirstString(payload, RESUME_RESULT_SOURCE_PROFILE_PATHS) || null,
     generatedAt: pickFirstString(payload, RESUME_RESULT_GENERATED_AT_PATHS),
   };
 }
 
-export function buildErrorPayload(error = "Request failed", details?: unknown): ContractErrorPayload {
+export function buildErrorPayload(
+  error = "Request failed",
+  details?: unknown
+): ContractErrorPayload {
   return details === undefined ? { error } : { error, details };
 }
 
@@ -485,8 +521,12 @@ function normalizeProfileSnapshot(
   }
 ): ContractProfileSnapshot {
   const sources = [payload, options.profile].filter(Boolean);
-  const linkedinUrl = normalizeUrl(pickFirstStringFromSources(sources, PROFILE_SNAPSHOT_LINKEDIN_URL_PATHS));
-  const portfolioUrl = normalizeUrl(pickFirstStringFromSources(sources, PROFILE_SNAPSHOT_PORTFOLIO_URL_PATHS));
+  const linkedinUrl = normalizeUrl(
+    pickFirstStringFromSources(sources, PROFILE_SNAPSHOT_LINKEDIN_URL_PATHS)
+  );
+  const portfolioUrl = normalizeUrl(
+    pickFirstStringFromSources(sources, PROFILE_SNAPSHOT_PORTFOLIO_URL_PATHS)
+  );
   const location =
     pickFirstStringFromSources(sources, PROFILE_SNAPSHOT_LOCATION_PATHS) ||
     formatLocationValue(
@@ -498,7 +538,10 @@ function normalizeProfileSnapshot(
       ])
     );
   const targetRoles = uniqueStrings([
-    ...stringArrayFromSources(sources, PROFILE_SNAPSHOT_TARGET_ROLE_ARRAY_PATHS),
+    ...stringArrayFromSources(
+      sources,
+      PROFILE_SNAPSHOT_TARGET_ROLE_ARRAY_PATHS
+    ),
     pickFirstStringFromSources(sources, PROFILE_SNAPSHOT_TARGET_ROLE_PATHS),
   ]);
   const notes = uniqueStrings([
@@ -512,7 +555,10 @@ function normalizeProfileSnapshot(
       PROFILE_SNAPSHOT_NAME_PATHS,
       options.exists ? "Profile loaded" : "Profile unavailable"
     ),
-    headline: pickFirstStringFromSources(sources, PROFILE_SNAPSHOT_HEADLINE_PATHS),
+    headline: pickFirstStringFromSources(
+      sources,
+      PROFILE_SNAPSHOT_HEADLINE_PATHS
+    ),
     email: pickFirstStringFromSources(sources, PROFILE_SNAPSHOT_EMAIL_PATHS),
     location,
     linkedinLabel: pickFirstStringFromSources(
@@ -530,7 +576,11 @@ function normalizeProfileSnapshot(
     github: pickFirstStringFromSources(sources, PROFILE_SNAPSHOT_GITHUB_PATHS),
     targetRoles,
     hasProfile: options.exists,
-    source: pickFirstStringFromSources(sources, ["snapshot.source"], options.source || "fallback"),
+    source: pickFirstStringFromSources(
+      sources,
+      ["snapshot.source"],
+      options.source || "fallback"
+    ),
     notes,
   };
 }
@@ -574,7 +624,10 @@ function pickFirstStringFromSources(
   return fallback;
 }
 
-function pickFirstValueFromSources(sources: unknown[], paths: string[]): unknown {
+function pickFirstValueFromSources(
+  sources: unknown[],
+  paths: string[]
+): unknown {
   for (const source of sources) {
     const value = pickFirstValue(source, paths);
 
@@ -606,7 +659,11 @@ function stringArrayFromPaths(source: unknown, paths: string[]): string[] {
   return values;
 }
 
-function pickFirstString(source: unknown, paths: string[], fallback = ""): string {
+function pickFirstString(
+  source: unknown,
+  paths: string[],
+  fallback = ""
+): string {
   for (const path of paths) {
     const value = getNestedValue(source, path);
 
@@ -618,7 +675,11 @@ function pickFirstString(source: unknown, paths: string[], fallback = ""): strin
   return fallback;
 }
 
-function pickFirstBoolean(source: unknown, paths: string[], fallback: boolean): boolean {
+function pickFirstBoolean(
+  source: unknown,
+  paths: string[],
+  fallback: boolean
+): boolean {
   for (const path of paths) {
     const value = getNestedValue(source, path);
 
@@ -630,7 +691,10 @@ function pickFirstBoolean(source: unknown, paths: string[], fallback: boolean): 
   return fallback;
 }
 
-function pickFirstRecord(source: unknown, paths: string[]): Record<string, unknown> | null {
+function pickFirstRecord(
+  source: unknown,
+  paths: string[]
+): Record<string, unknown> | null {
   for (const path of paths) {
     const record = asRecord(getNestedValue(source, path));
 
@@ -756,10 +820,12 @@ function formatLocationValue(value: unknown): string {
 }
 
 function basename(value: string): string {
-  return String(value || "")
-    .split(/[\\/]/)
-    .filter(Boolean)
-    .pop() || "";
+  return (
+    String(value || "")
+      .split(/[\\/]/)
+      .filter(Boolean)
+      .pop() || ""
+  );
 }
 
 function looksLikeProfileRecord(value: unknown): boolean {
@@ -768,5 +834,10 @@ function looksLikeProfileRecord(value: unknown): boolean {
     return false;
   }
 
-  return Boolean(record.candidate || record.target_roles || record.narrative || record.compensation);
+  return Boolean(
+    record.candidate ||
+      record.target_roles ||
+      record.narrative ||
+      record.compensation
+  );
 }

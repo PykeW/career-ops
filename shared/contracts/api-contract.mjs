@@ -113,13 +113,8 @@ export const ERROR_PAYLOAD_PATHS = {
 };
 
 export function buildCvRequest(content = '') {
-  const normalizedContent = typeof content === 'string' ? content : '';
-
   return {
-    content: normalizedContent,
-    cvContent: normalizedContent,
-    cv: normalizedContent,
-    markdown: normalizedContent,
+    content: typeof content === 'string' ? content : '',
   };
 }
 
@@ -133,16 +128,10 @@ export function normalizeCvRequest(payload = {}) {
 }
 
 export function buildCvResponse({ exists = false, path = 'cv.md', content = '' } = {}) {
-  const normalizedContent = typeof content === 'string' ? content : '';
-  const normalizedPath = String(path || 'cv.md');
-
   return {
     exists: Boolean(exists),
-    path: normalizedPath,
-    content: normalizedContent,
-    cvContent: normalizedContent,
-    cv: normalizedContent,
-    markdown: normalizedContent,
+    path: String(path || 'cv.md'),
+    content: typeof content === 'string' ? content : '',
   };
 }
 
@@ -235,23 +224,18 @@ export function buildResumeGenerateRequest({
   company = '',
   targetRole = '',
 } = {}) {
-  const normalizedJobDescription = typeof jobDescription === 'string' ? jobDescription.trim() : '';
+  const payload = {
+    jobDescription: typeof jobDescription === 'string' ? jobDescription.trim() : '',
+  };
   const normalizedCompany = typeof company === 'string' ? company.trim() : '';
   const normalizedTargetRole = typeof targetRole === 'string' ? targetRole.trim() : '';
-  const payload = {
-    jobDescription: normalizedJobDescription,
-    jdText: normalizedJobDescription,
-    description: normalizedJobDescription,
-  };
 
   if (normalizedCompany) {
     payload.company = normalizedCompany;
-    payload.companyName = normalizedCompany;
   }
 
   if (normalizedTargetRole) {
     payload.targetRole = normalizedTargetRole;
-    payload.role = normalizedTargetRole;
   }
 
   return payload;
@@ -593,6 +577,18 @@ function pickFirstStringFromSources(sources, paths, fallback = '') {
   }
 
   return fallback;
+}
+
+function pickFirstValueFromSources(sources, paths) {
+  for (const source of sources) {
+    const value = pickFirstValueAtPaths(source, paths);
+
+    if (value !== undefined) {
+      return value;
+    }
+  }
+
+  return undefined;
 }
 
 function pickFirstBooleanFromSources(sources, paths, fallback = false) {

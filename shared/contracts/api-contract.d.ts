@@ -57,9 +57,6 @@ export interface ContractErrorPayload {
 
 export function buildCvRequest(content?: string): {
   content: string;
-  cvContent: string;
-  cv: string;
-  markdown: string;
 };
 
 export function normalizeCvRequest(payload?: unknown): {
@@ -67,11 +64,9 @@ export function normalizeCvRequest(payload?: unknown): {
   provided: boolean;
 };
 
-export function buildCvResponse(payload?: Partial<ContractCvResponse>): ContractCvResponse & {
-  cvContent: string;
-  cv: string;
-  markdown: string;
-};
+export function buildCvResponse(
+  payload?: Partial<ContractCvResponse>
+): ContractCvResponse;
 
 export function normalizeCvResponse(payload?: unknown): ContractCvResponse;
 
@@ -89,7 +84,9 @@ export function buildProfileResponse(payload?: {
   notes?: string[];
 }): ContractProfileResponse;
 
-export function normalizeProfileResponse(payload?: unknown): ContractProfileResponse;
+export function normalizeProfileResponse(
+  payload?: unknown
+): ContractProfileResponse;
 
 export function buildResumeGenerateRequest(payload?: {
   jobDescription?: string;
@@ -97,12 +94,8 @@ export function buildResumeGenerateRequest(payload?: {
   targetRole?: string;
 }): {
   jobDescription: string;
-  jdText: string;
-  description: string;
   company?: string;
-  companyName?: string;
   targetRole?: string;
-  role?: string;
 };
 
 export function normalizeResumeGenerateRequest(payload?: unknown): {
@@ -111,20 +104,16 @@ export function normalizeResumeGenerateRequest(payload?: unknown): {
   targetRole: string;
 };
 
-export function buildResumeResult(payload?: Partial<ContractResumeResult>): ContractResumeResult & {
-  filename: string;
-  downloadUrl: string;
-  content: string;
-  markdown: string;
-  companyName: string;
-  role: string;
-  metadata: Record<string, unknown>;
-  links: Record<string, string>;
-};
+export function buildResumeResult(
+  payload?: Partial<ContractResumeResult>
+): ContractResumeResult;
 
 export function normalizeResumeResult(payload?: unknown): ContractResumeResult;
 
-export function buildErrorPayload(error?: string, details?: unknown): ContractErrorPayload;
+export function buildErrorPayload(
+  error?: string,
+  details?: unknown
+): ContractErrorPayload;
 
 export function normalizeErrorPayload(
   payload?: unknown,

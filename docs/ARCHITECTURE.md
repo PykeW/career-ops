@@ -42,13 +42,13 @@ The dedicated local app now has an explicit frontend/backend split:
 - `frontend/src/hooks/useCvDocument.ts`, `frontend/src/hooks/useProfileSnapshot.ts`, and `frontend/src/hooks/useResumeGeneration.ts` own the frontend request lifecycle used by `App.tsx`.
 - `frontend/src/lib/api.ts` should consume canonical response fields first, while `shared/contracts/api-contract.*` remains the only place where compatibility aliases are normalized on purpose.
 - `backend/routes/api.mjs` and the backend libs remain the runtime implementation behind that contract boundary.
-- `web/server.mjs` is a deprecated forwarding shim only and should not regain business logic.
+- `web/server.mjs` is a deprecated forwarding shim only and should not regain business logic, and `web/public/` should not grow new hidden contract fallbacks during migration.
 
 Minimum validation for split-app or contract changes:
 
 ```bash
 npm run backend:check
-npm install --prefix frontend
+npm run frontend:install
 npm run frontend:build
 node test-all.mjs --quick
 ```

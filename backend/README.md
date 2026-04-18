@@ -18,13 +18,13 @@ The primary local app entrypoints now live at the repository root:
 npm run backend:dev
 npm run backend:start
 npm run backend:check
-npm install --prefix frontend
+npm run frontend:install
 npm run frontend:dev
 npm run frontend:build
 node test-all.mjs --quick
 ```
 
-Use `npm run backend:check` for backend syntax smoke, `npm run frontend:build` after contract/client changes, and `node test-all.mjs --quick` before opening a PR that touches the split app or shared contract surface.
+Use `npm run backend:check` for backend syntax smoke, `npm run frontend:install && npm run frontend:build` after contract/client changes, and `node test-all.mjs --quick` before opening a PR that touches the split app or shared contract surface.
 
 Defaults:
 
@@ -55,4 +55,6 @@ The markdown resume flow no longer depends on `templates/cv-template.html` or `g
 
 `PUT /api/cv` accepts `content` as the canonical request body field. Aliases accepted for compatibility today: `cvContent`, `cv`, `markdown`. New frontend code should send canonical `content` only.
 
-`POST /api/resume/generate` requires `jobDescription`. Optional compatibility aliases still accepted for migration: `companyName` and `role`, while canonical clients should use `company` and `targetRole`. The backend saves a tailored `.md` resume in `output/`, returns the generated content inline, and provides a markdown download path. It only reorganizes/highlights material already present in `cv.md`.
+`POST /api/resume/generate` requires canonical `jobDescription` and accepts optional canonical `company` / `targetRole`. Compatibility request aliases still accepted during migration are `jdText`, `description`, `companyName`, and `role`. New clients should send canonical fields only.
+
+`POST /api/resume/generate` returns canonical fields such as `fileName`, `downloadPath`, `previewMarkdown`, `company`, `targetRole`, and `message`. Compatibility response aliases (`filename`, `downloadUrl`, `content`, `markdown`, `companyName`, `role`) still remain temporarily available during migration, so clients should read canonical fields first. The backend saves a tailored `.md` resume in `output/`, returns the generated content inline, and provides a markdown download path. It only reorganizes/highlights material already present in `cv.md`.

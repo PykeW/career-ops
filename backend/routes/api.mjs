@@ -7,16 +7,10 @@ import { getCvDocument, getProfileDocument, saveCvDocument } from '../lib/data.m
 import { createHttpError, asyncHandler } from '../lib/http.mjs';
 import { getProjectPaths } from '../lib/project-paths.mjs';
 import { generateResume } from '../lib/resume.mjs';
-
-function pickStringValue(body, fieldNames) {
-  for (const fieldName of fieldNames) {
-    if (typeof body?.[fieldName] === 'string') {
-      return body[fieldName];
-    }
-  }
-
-  return undefined;
-}
+import {
+  normalizeCvRequest,
+  normalizeResumeGenerateRequest,
+} from '../../shared/contracts/api-contract.mjs';
 
 export function createApiRouter(env = process.env) {
   const router = express.Router();
@@ -35,13 +29,13 @@ export function createApiRouter(env = process.env) {
   }));
 
   router.put('/cv', asyncHandler(async (req, res) => {
-    const content = pickStringValue(req.body, ['content', 'cvContent', 'cv', 'markdown']);
+    const cvRequest = normalizeCvRequest(req.body);
 
-    if (content === undefined) {
+    if (!cvRequest.provided) {
       throw createHttpError(400, 'Request body must include a string field named `content`');
     }
 
-    const cvDocument = await saveCvDocument(paths, content);
+    const cvDocument = await saveCvDocument(paths, cvRequest.content);
     res.json(cvDocument);
   }));
 
@@ -51,13 +45,8 @@ export function createApiRouter(env = process.env) {
   }));
 
   router.post('/resume/generate', asyncHandler(async (req, res) => {
-    const jobDescription = pickStringValue(req.body, ['jobDescription', 'jdText', 'description']);
-
-    const result = await generateResume(paths, {
-      jobDescription,
-      company: pickStringValue(req.body, ['company', 'companyName']),
-      targetRole: pickStringValue(req.body, ['targetRole', 'role']),
-    });
+    const resumeRequest = normalizeResumeGenerateRequest(req.body);
+    const result = await generateResume(paths, resumeRequest);
 
     res.status(201).json(result);
   }));

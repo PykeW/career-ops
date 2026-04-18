@@ -2,22 +2,30 @@
 
 This reference keeps the day-to-day commands and validation flow close to `AGENTS.md` without replacing the canonical script and contribution docs.
 
+[AGENTS](../../AGENTS.md) · [Overview](../../AGENTS.md#development) · [Getting Started](GETTING_STARTED.md) · [Configuration](CONFIGURATION.md)
+
+## On this page
+
+- [Common Commands](#common-commands)
+- [Local Workflow](#local-workflow)
+- [Testing and Validation](#testing-and-validation)
+
 ## Common Commands
 
-| Command | Purpose |
-|---------|---------|
-| `npm run doctor` | Validate prerequisites and required local files. |
-| `npm run verify` | Check tracker integrity, report links, and pending tracker additions. |
-| `npm run normalize` | Map tracker statuses to canonical values. |
-| `npm run dedup` | Remove duplicate tracker entries. |
-| `npm run merge` | Merge batch TSV additions into `data/applications.md`. |
-| `npm run pdf` | Render an HTML CV into a PDF. |
-| `npm run sync-check` | Check CV/profile consistency and shared prompt safety. |
-| `npm run update:check` | Check for upstream system-layer updates. |
-| `npm run update` | Apply an upstream system-layer update. |
-| `npm run rollback` | Restore the previous system-layer backup created during update. |
-| `npm run liveness` | Check whether saved job URLs still look active. |
-| `npm run scan` | Run the zero-token portal scanner. |
+| Command                | Purpose                                                               |
+| ---------------------- | --------------------------------------------------------------------- |
+| `npm run doctor`       | Validate prerequisites and required local files.                      |
+| `npm run verify`       | Check tracker integrity, report links, and pending tracker additions. |
+| `npm run normalize`    | Map tracker statuses to canonical values.                             |
+| `npm run dedup`        | Remove duplicate tracker entries.                                     |
+| `npm run merge`        | Merge batch TSV additions into `data/applications.md`.                |
+| `npm run pdf`          | Render an HTML CV into a PDF.                                         |
+| `npm run sync-check`   | Check CV/profile consistency and shared prompt safety.                |
+| `npm run update:check` | Check for upstream system-layer updates.                              |
+| `npm run update`       | Apply an upstream system-layer update.                                |
+| `npm run rollback`     | Restore the previous system-layer backup created during update.       |
+| `npm run liveness`     | Check whether saved job URLs still look active.                       |
+| `npm run scan`         | Run the zero-token portal scanner.                                    |
 
 ## Local Workflow
 
@@ -37,4 +45,11 @@ This reference keeps the day-to-day commands and validation flow close to `AGENT
 - Use `npm run normalize -- --dry-run` or `npm run dedup -- --dry-run` before applying tracker maintenance changes.
 - Use `cd dashboard && go build -o career-dashboard .` for dashboard validation.
 
-For script-by-script details, see `../SCRIPTS.md`. For contribution expectations, see `../../CONTRIBUTING.md`.
+For script-by-script details, see [docs/SCRIPTS.md](../SCRIPTS.md). For contribution expectations, see [CONTRIBUTING.md](../../CONTRIBUTING.md).
+
+## Related
+
+- [AGENTS](../../AGENTS.md)
+- [Overview](../../AGENTS.md#development)
+- [Getting Started](GETTING_STARTED.md)
+- [Configuration](CONFIGURATION.md)

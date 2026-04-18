@@ -2,6 +2,15 @@
 
 This guide condenses the checked-in setup flow for Codex and Claude users while keeping the detailed setup docs linked for deeper context.
 
+[AGENTS](../../AGENTS.md) · [Overview](../../AGENTS.md#getting-started) · [Development](DEVELOPMENT_WORKFLOW.md) · [Configuration](CONFIGURATION.md)
+
+## On this page
+
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [First Run](#first-run)
+- [Verification](#verification)
+
 ## Prerequisites
 
 - A Codex client that reads `../../AGENTS.md` or Claude Code configured for this repository.
@@ -28,6 +37,7 @@ cp templates/portals.example.yml portals.yml
 ```
 
 2. Add the root user files expected by the workflows:
+
    - `cv.md` for the canonical CV
    - `article-digest.md` for optional proof points
 
@@ -52,4 +62,11 @@ cd dashboard && go build -o career-dashboard .
 ./career-dashboard --path ..
 ```
 
-For the fuller setup walkthrough, see `../SETUP.md` and `../CODEX.md`.
+For the fuller setup walkthrough, see [docs/SETUP.md](../SETUP.md) and [docs/CODEX.md](../CODEX.md).
+
+## Related
+
+- [AGENTS](../../AGENTS.md)
+- [Overview](../../AGENTS.md#getting-started)
+- [Development](DEVELOPMENT_WORKFLOW.md)
+- [Configuration](CONFIGURATION.md)

@@ -2,6 +2,18 @@
 
 This reference summarizes how the checked-in modes, scripts, templates, and data files fit together.
 
+[AGENTS](../../AGENTS.md) · [Overview](../../AGENTS.md#architecture) · [Project Structure](PROJECT_STRUCTURE.md) · [Key Features](KEY_FEATURES.md)
+
+## On this page
+
+- [High-Level Design](#high-level-design)
+- [Major Components](#major-components)
+- [Data Flow](#data-flow)
+  - [Single Offer Flow](#single-offer-flow)
+  - [Scanner Flow](#scanner-flow)
+  - [Batch and Tracker Flow](#batch-and-tracker-flow)
+- [External Boundaries](#external-boundaries)
+
 ## High-Level Design
 
 - `../../AGENTS.md` is the Codex entrypoint and routes readers into `../../CLAUDE.md`, `../../DATA_CONTRACT.md`, and `../CODEX.md`.
@@ -11,14 +23,14 @@ This reference summarizes how the checked-in modes, scripts, templates, and data
 
 ## Major Components
 
-| Component | Repository anchors | Responsibility |
-|-----------|--------------------|----------------|
-| Mode layer | `../../modes/` | Defines workflow prompts and routing for evaluation, scanning, PDF generation, tracking, and adjacent workflows. |
-| Scanner | `../../scan.mjs`, `../../templates/portals.example.yml` | Discovers relevant roles from configured companies and search queries. |
-| PDF generation | `../../generate-pdf.mjs`, `../../templates/cv-template.html`, `../../fonts/` | Produces ATS-oriented CV PDFs from repository inputs. |
-| Batch pipeline | `../../batch/batch-runner.sh`, `../../batch/batch-prompt.md`, `../../batch/README.md` | Runs multiple evaluations in parallel and records worker state. |
-| Tracker maintenance | `../../merge-tracker.mjs`, `../../verify-pipeline.mjs`, `../../normalize-statuses.mjs`, `../../dedup-tracker.mjs` | Keeps `data/applications.md` consistent and canonical. |
-| Dashboard | `../../dashboard/main.go` | Provides a terminal UI for browsing and updating tracker state. |
+| Component           | Repository anchors                                                                                                | Responsibility                                                                                                   |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Mode layer          | `../../modes/`                                                                                                    | Defines workflow prompts and routing for evaluation, scanning, PDF generation, tracking, and adjacent workflows. |
+| Scanner             | `../../scan.mjs`, `../../templates/portals.example.yml`                                                           | Discovers relevant roles from configured companies and search queries.                                           |
+| PDF generation      | `../../generate-pdf.mjs`, `../../templates/cv-template.html`, `../../fonts/`                                      | Produces ATS-oriented CV PDFs from repository inputs.                                                            |
+| Batch pipeline      | `../../batch/batch-runner.sh`, `../../batch/batch-prompt.md`, `../../batch/README.md`                             | Runs multiple evaluations in parallel and records worker state.                                                  |
+| Tracker maintenance | `../../merge-tracker.mjs`, `../../verify-pipeline.mjs`, `../../normalize-statuses.mjs`, `../../dedup-tracker.mjs` | Keeps `data/applications.md` consistent and canonical.                                                           |
+| Dashboard           | `../../dashboard/main.go`                                                                                         | Provides a terminal UI for browsing and updating tracker state.                                                  |
 
 ## Data Flow
 
@@ -50,4 +62,11 @@ This reference summarizes how the checked-in modes, scripts, templates, and data
 - `../CODEX.md` says new tracker rows should flow through TSV additions and `merge-tracker.mjs`, not direct manual insertion into `data/applications.md`.
 - `../../CLAUDE.md` and `../../CONTRIBUTING.md` both reinforce the same human-in-the-loop rule: the system can prepare applications, but it should not submit them automatically.
 
-For the canonical architecture walkthrough, see `../ARCHITECTURE.md`.
+For the canonical architecture walkthrough, see [docs/ARCHITECTURE.md](../ARCHITECTURE.md).
+
+## Related
+
+- [AGENTS](../../AGENTS.md)
+- [Overview](../../AGENTS.md#architecture)
+- [Project Structure](PROJECT_STRUCTURE.md)
+- [Key Features](KEY_FEATURES.md)

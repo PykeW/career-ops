@@ -2,15 +2,24 @@
 
 This reference summarizes the repository files that control personalization, shared defaults, and optional local tooling.
 
+[AGENTS](../../AGENTS.md) · [Overview](../../AGENTS.md#configuration) · [Getting Started](GETTING_STARTED.md) · [Architecture](SYSTEM_ARCHITECTURE.md)
+
+## On this page
+
+- [Runtime Settings](#runtime-settings)
+- [Shared Defaults](#shared-defaults)
+- [Customization Points](#customization-points)
+- [Boundaries and Optional Environment Tooling](#boundaries-and-optional-environment-tooling)
+
 ## Runtime Settings
 
-| File | Role |
-|------|------|
+| File                 | Role                                                                                                              |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `config/profile.yml` | Primary candidate profile with `candidate`, `target_roles`, `narrative`, `compensation`, and `location` sections. |
-| `modes/_profile.md` | Personal override file for archetypes, framing, negotiation scripts, and location policy. |
-| `portals.yml` | Scanner configuration copied from `templates/portals.example.yml`. |
-| `cv.md` | Canonical CV input used by evaluations and PDF generation. |
-| `article-digest.md` | Optional proof-point source for deeper personalization. |
+| `modes/_profile.md`  | Personal override file for archetypes, framing, negotiation scripts, and location policy.                         |
+| `portals.yml`        | Scanner configuration copied from `templates/portals.example.yml`.                                                |
+| `cv.md`              | Canonical CV input used by evaluations and PDF generation.                                                        |
+| `article-digest.md`  | Optional proof-point source for deeper personalization.                                                           |
 
 ## Shared Defaults
 
@@ -33,4 +42,11 @@ This reference summarizes the repository files that control personalization, sha
 - `../../CLAUDE.md` explicitly directs user-specific customization into `config/profile.yml` and `modes/_profile.md`, not `modes/_shared.md`.
 - `.envrc` and `flake.nix` provide optional direnv/Nix environment support; the repository does not document a separate application-level environment-variable surface in the checked-in docs.
 
-For the canonical customization walkthrough, see `../CUSTOMIZATION.md`.
+For the canonical customization walkthrough, see [docs/CUSTOMIZATION.md](../CUSTOMIZATION.md).
+
+## Related
+
+- [AGENTS](../../AGENTS.md)
+- [Overview](../../AGENTS.md#configuration)
+- [Getting Started](GETTING_STARTED.md)
+- [Architecture](SYSTEM_ARCHITECTURE.md)

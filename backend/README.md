@@ -54,7 +54,6 @@ The markdown resume flow no longer depends on `templates/cv-template.html` or `g
 - `GET /api/resume/download/:fileName`
 
 `PUT /api/cv` accepts `content` as the canonical request body field. Aliases accepted for compatibility today: `cvContent`, `cv`, `markdown`. New frontend code should send canonical `content` only.
+`POST /api/resume/generate` requires canonical `jobDescription` and accepts optional canonical `company` / `targetRole`. Request aliases are no longer accepted.
 
-`POST /api/resume/generate` requires canonical `jobDescription` and accepts optional canonical `company` / `targetRole`. Compatibility request aliases still accepted during migration are `jdText`, `description`, `companyName`, and `role`. New clients should send canonical fields only.
-
-`POST /api/resume/generate` returns canonical fields such as `fileName`, `downloadPath`, `previewMarkdown`, `company`, `targetRole`, and `message`. Compatibility response aliases (`filename`, `downloadUrl`, `content`, `markdown`, `companyName`, `role`) still remain temporarily available during migration, so clients should read canonical fields first. The backend saves a tailored `.md` resume in `output/`, returns the generated content inline, and provides a markdown download path. It only reorganizes/highlights material already present in `cv.md`.
+`POST /api/resume/generate` returns canonical fields such as `fileName`, `downloadPath`, `previewMarkdown`, `company`, `targetRole`, and `message`. Response aliases are no longer emitted. The backend saves a tailored `.md` resume in `output/`, returns the generated content inline, and provides a markdown download path. It only reorganizes/highlights material already present in `cv.md`.

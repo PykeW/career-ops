@@ -207,86 +207,47 @@ const PROFILE_SNAPSHOT_NOTES_PATHS = [
 
 const RESUME_RESULT_FILE_NAME_PATHS = [
   "fileName",
-  "filename",
-  "name",
   "data.fileName",
-  "data.filename",
   "result.fileName",
-  "result.filename",
-  "resume.fileName",
-  "resume.filename",
-  "output.fileName",
-  "output.filename",
 ];
 
 const RESUME_RESULT_PREVIEW_PATHS = [
   "previewMarkdown",
-  "content",
-  "markdown",
-  "resumeMarkdown",
-  "resume.markdown",
-  "resume.content",
   "result.previewMarkdown",
-  "result.markdown",
-  "result.content",
   "data.previewMarkdown",
-  "data.markdown",
-  "data.content",
-  "generated.markdown",
-  "generated.content",
-  "output.markdown",
-  "output.content",
 ];
 
 const RESUME_RESULT_COMPANY_PATHS = [
   "company",
-  "companyName",
   "data.company",
-  "data.companyName",
   "result.company",
-  "result.companyName",
 ];
 
 const RESUME_RESULT_TARGET_ROLE_PATHS = [
   "targetRole",
-  "role",
   "data.targetRole",
-  "data.role",
   "result.targetRole",
-  "result.role",
 ];
 
 const RESUME_RESULT_MESSAGE_PATHS = [
   "message",
-  "statusMessage",
   "data.message",
   "result.message",
 ];
 
 const RESUME_RESULT_DOWNLOAD_PATHS = [
   "downloadPath",
-  "downloadUrl",
-  "links.downloadPath",
-  "links.downloadUrl",
   "data.downloadPath",
-  "data.downloadUrl",
   "result.downloadPath",
-  "result.downloadUrl",
 ];
 
 const RESUME_RESULT_KEYWORDS_PATHS = [
   "keywords",
   "data.keywords",
   "result.keywords",
-  "metadata.keywords",
 ];
 
-const RESUME_RESULT_NOTES_PATHS = [
-  "notes",
-  "data.notes",
-  "result.notes",
-  "metadata.notes",
-];
+const RESUME_RESULT_NOTES_PATHS = ["notes", "data.notes", "result.notes"];
 
 const RESUME_RESULT_SOURCE_CV_PATHS = [
   "sourceCvPath",
@@ -420,13 +381,9 @@ export function buildResumeGenerateRequest(
 export function normalizeResumeGenerateRequest(
   payload: unknown
 ): ContractResumeGenerateRequest {
-  const jobDescription = pickFirstString(payload, [
-    "jobDescription",
-    "jdText",
-    "description",
-  ]).trim();
-  const company = pickFirstString(payload, ["company", "companyName"]).trim();
-  const targetRole = pickFirstString(payload, ["targetRole", "role"]).trim();
+  const jobDescription = pickFirstString(payload, ["jobDescription"]).trim();
+  const company = pickFirstString(payload, ["company"]).trim();
+  const targetRole = pickFirstString(payload, ["targetRole"]).trim();
 
   return {
     jobDescription,

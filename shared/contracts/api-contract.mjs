@@ -31,9 +31,9 @@ export const PROFILE_RESPONSE_PATHS = {
 };
 
 export const RESUME_REQUEST_FIELDS = {
-  jobDescription: ['jobDescription', 'jdText', 'description'],
-  company: ['company', 'companyName'],
-  targetRole: ['targetRole', 'role'],
+  jobDescription: ['jobDescription'],
+  company: ['company'],
+  targetRole: ['targetRole'],
 };
 
 export const RESUME_RESULT_PATHS = {
@@ -41,67 +41,15 @@ export const RESUME_RESULT_PATHS = {
   artifactType: ['artifactType', 'data.artifactType', 'result.artifactType'],
   contentType: ['contentType', 'data.contentType', 'result.contentType'],
   language: ['language', 'data.language', 'result.language'],
-  fileName: [
-    'fileName',
-    'filename',
-    'name',
-    'data.fileName',
-    'data.filename',
-    'result.fileName',
-    'result.filename',
-    'resume.fileName',
-    'resume.filename',
-    'output.fileName',
-    'output.filename',
-  ],
-  downloadPath: [
-    'downloadPath',
-    'downloadUrl',
-    'links.downloadPath',
-    'links.downloadUrl',
-    'data.downloadPath',
-    'data.downloadUrl',
-    'result.downloadPath',
-    'result.downloadUrl',
-  ],
+  fileName: ['fileName', 'data.fileName', 'result.fileName'],
+  downloadPath: ['downloadPath', 'data.downloadPath', 'result.downloadPath'],
   outputPath: ['outputPath', 'data.outputPath', 'result.outputPath'],
-  previewMarkdown: [
-    'previewMarkdown',
-    'content',
-    'markdown',
-    'resumeMarkdown',
-    'resume.markdown',
-    'resume.content',
-    'result.previewMarkdown',
-    'result.markdown',
-    'result.content',
-    'data.previewMarkdown',
-    'data.markdown',
-    'data.content',
-    'generated.markdown',
-    'generated.content',
-    'output.markdown',
-    'output.content',
-  ],
-  company: [
-    'company',
-    'companyName',
-    'data.company',
-    'data.companyName',
-    'result.company',
-    'result.companyName',
-  ],
-  targetRole: [
-    'targetRole',
-    'role',
-    'data.targetRole',
-    'data.role',
-    'result.targetRole',
-    'result.role',
-  ],
-  message: ['message', 'statusMessage', 'data.message', 'result.message'],
-  keywords: ['keywords', 'data.keywords', 'result.keywords', 'metadata.keywords'],
-  notes: ['notes', 'data.notes', 'result.notes', 'metadata.notes'],
+  previewMarkdown: ['previewMarkdown', 'data.previewMarkdown', 'result.previewMarkdown'],
+  company: ['company', 'data.company', 'result.company'],
+  targetRole: ['targetRole', 'data.targetRole', 'result.targetRole'],
+  message: ['message', 'data.message', 'result.message'],
+  keywords: ['keywords', 'data.keywords', 'result.keywords'],
+  notes: ['notes', 'data.notes', 'result.notes'],
   sourceCvPath: ['sourceCvPath', 'data.sourceCvPath', 'result.sourceCvPath'],
   sourceProfilePath: ['sourceProfilePath', 'data.sourceProfilePath', 'result.sourceProfilePath'],
   generatedAt: ['generatedAt', 'data.generatedAt', 'result.generatedAt'],
@@ -289,17 +237,11 @@ export function buildResumeResult({
     contentType,
     language,
     fileName: normalizedFileName,
-    filename: normalizedFileName,
     downloadPath: normalizedDownloadPath,
-    downloadUrl: normalizedDownloadPath,
     outputPath: typeof outputPath === 'string' ? outputPath : '',
     previewMarkdown: normalizedPreviewMarkdown,
-    content: normalizedPreviewMarkdown,
-    markdown: normalizedPreviewMarkdown,
     company: normalizedCompany,
-    companyName: normalizedCompany,
     targetRole: normalizedTargetRole,
-    role: normalizedTargetRole,
     message: normalizedMessage,
     keywords: normalizedKeywords,
     notes: normalizedNotes,
@@ -309,26 +251,6 @@ export function buildResumeResult({
         ? sourceProfilePath
         : null,
     generatedAt: typeof generatedAt === 'string' ? generatedAt : '',
-    metadata: {
-      artifactType,
-      contentType,
-      language,
-      fileName: normalizedFileName,
-      company: normalizedCompany,
-      targetRole: normalizedTargetRole,
-      generatedAt: typeof generatedAt === 'string' ? generatedAt : '',
-      outputPath: typeof outputPath === 'string' ? outputPath : '',
-      sourceCvPath: typeof sourceCvPath === 'string' ? sourceCvPath : '',
-      sourceProfilePath:
-        typeof sourceProfilePath === 'string' && sourceProfilePath.trim()
-          ? sourceProfilePath
-          : '',
-    },
-    links: normalizedDownloadPath
-      ? {
-          downloadUrl: normalizedDownloadPath,
-        }
-      : {},
   };
 }
 

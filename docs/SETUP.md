@@ -21,9 +21,11 @@ npx playwright install chromium   # Required for PDF generation
 
 ```bash
 cp config/profile.example.yml config/profile.yml
+cp modes/_profile.template.md modes/_profile.md
 ```
 
 Edit `config/profile.yml` with your personal details: name, email, target roles, narrative, proof points.
+Use `modes/_profile.md` for your personal archetypes, framing, negotiation scripts, and other user-specific overrides.
 
 ### 3. Add your CV
 
@@ -38,6 +40,7 @@ cp templates/portals.example.yml portals.yml
 ```
 
 Edit `portals.yml`:
+
 - Update `title_filter.positive` with keywords matching your target roles
 - Add companies you want to track in `tracked_companies`
 - Customize `search_queries` for your preferred job boards
@@ -54,15 +57,15 @@ Then paste a job offer URL or description. Career-ops will automatically evaluat
 
 ## Available Commands
 
-| Action | How |
-|--------|-----|
-| Evaluate an offer | Paste a URL or JD text |
-| Search for offers | `/career-ops scan` |
-| Process pending URLs | `/career-ops pipeline` |
-| Generate a PDF | `/career-ops pdf` |
-| Batch evaluate | `/career-ops batch` |
-| Check tracker status | `/career-ops tracker` |
-| Fill application form | `/career-ops apply` |
+| Action                | How                    |
+| --------------------- | ---------------------- |
+| Evaluate an offer     | Paste a URL or JD text |
+| Search for offers     | `/career-ops scan`     |
+| Process pending URLs  | `/career-ops pipeline` |
+| Generate a PDF        | `/career-ops pdf`      |
+| Batch evaluate        | `/career-ops batch`    |
+| Check tracker status  | `/career-ops tracker`  |
+| Fill application form | `/career-ops apply`    |
 
 ## Verify Setup
 

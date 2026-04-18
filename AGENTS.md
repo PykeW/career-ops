@@ -1,153 +1,133 @@
-# Project Name
+# Career-Ops
 
-Career-Ops
+## Overview
 
-# Overview
+### Purpose
+Career-Ops is an AI-powered job-search pipeline built around the checked-in modes, Node.js scripts, Playwright tooling, and an optional Go dashboard. The repository evaluates job descriptions or URLs, generates ATS-oriented PDFs, scans portals, batch-processes offers, and tracks applications with markdown and TSV files.
 
-Career-Ops is an AI-powered job-search pipeline built on Claude Code. The repository evaluates job descriptions or URLs, generates ATS-oriented PDFs, scans portals, processes offers in batch, and tracks applications with markdown and TSV-based workflows.
+For Codex, use this file as the entry point, then route into [`CLAUDE.md`](CLAUDE.md), [`DATA_CONTRACT.md`](DATA_CONTRACT.md), and [`docs/CODEX.md`](docs/CODEX.md). Reuse the existing modes, scripts, templates, and tracker flow rather than creating a parallel automation layer. Keep user-specific customization in `config/profile.yml`, `modes/_profile.md`, `article-digest.md`, and `portals.yml`, and never submit an application on the user's behalf.
 
-For Codex compatibility, treat this file as the entry point, then read `CLAUDE.md`, `DATA_CONTRACT.md`, and `docs/CODEX.md`. Reuse the checked-in modes, scripts, templates, and tracker flow rather than creating a parallel automation layer. Keep user-specific customization in `config/profile.yml`, `modes/_profile.md`, `article-digest.md`, or `portals.yml`, never in `modes/_shared.md`, and never submit an application on the user's behalf.
+### Documentation Map
+- Core agent docs: [`CLAUDE.md`](CLAUDE.md), [`DATA_CONTRACT.md`](DATA_CONTRACT.md), [`docs/CODEX.md`](docs/CODEX.md)
+- Detailed references for this entrypoint:
+  - [`docs/agents/PROJECT_STRUCTURE.md`](docs/agents/PROJECT_STRUCTURE.md)
+  - [`docs/agents/KEY_FEATURES.md`](docs/agents/KEY_FEATURES.md)
+  - [`docs/agents/GETTING_STARTED.md`](docs/agents/GETTING_STARTED.md)
+  - [`docs/agents/DEVELOPMENT_WORKFLOW.md`](docs/agents/DEVELOPMENT_WORKFLOW.md)
+  - [`docs/agents/CONFIGURATION.md`](docs/agents/CONFIGURATION.md)
+  - [`docs/agents/SYSTEM_ARCHITECTURE.md`](docs/agents/SYSTEM_ARCHITECTURE.md)
+- Canonical repo docs: [`docs/SETUP.md`](docs/SETUP.md), [`docs/SCRIPTS.md`](docs/SCRIPTS.md), [`docs/CUSTOMIZATION.md`](docs/CUSTOMIZATION.md), [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`CONTRIBUTING.md`](CONTRIBUTING.md)
 
-# Technology Stack
+## Technology Stack
 
-- Node.js 18+ for the main automation and maintenance scripts.
-- JavaScript ES modules (`*.mjs`) for scanning, verification, PDF generation, tracker maintenance, update checks, and related utilities.
-- Playwright for browser-based job extraction and PDF rendering.
-- `js-yaml` for YAML-backed configuration such as `portals.yml`.
-- Go for the optional dashboard in `dashboard/`; `docs/SETUP.md` says Go 1.21+ and `dashboard/go.mod` currently declares `go 1.24.2`.
-- Bubble Tea and Lip Gloss for the dashboard TUI.
-- Markdown, YAML, HTML, TSV, and plain text files as the main documentation, configuration, and data formats.
-- Optional Nix and direnv support via `.envrc` and `flake.nix`.
+### Core Stack
+- Node.js 18+ runs the root automation scripts exposed in `package.json`.
+- JavaScript ES modules (`*.mjs`) handle scanning, verification, PDF generation, tracker maintenance, update checks, liveness checks, and related utilities.
+- Playwright provides browser automation for PDF generation and job verification.
+- `js-yaml` backs YAML-driven configuration such as `config/profile.yml` and `portals.yml`.
+- The dashboard in `dashboard/` uses Go, with `dashboard/go.mod` currently declaring `go 1.24.2`.
 
-# Project Structure
+### Tooling and Infrastructure
+- Bubble Tea, Lip Gloss, and related Go dependencies power the terminal dashboard.
+- Markdown, YAML, HTML, TSV, and plain-text files are the main documentation, configuration, and data formats.
+- `.opencode/commands/` mirrors the main workflows as checked-in OpenCode command entrypoints.
+- `.envrc` and `flake.nix` provide optional direnv/Nix support.
+- `fonts/` stores the self-hosted fonts used by PDF generation.
 
-```text
-career-ops/
-├── AGENTS.md
-├── CLAUDE.md
-├── DATA_CONTRACT.md
-├── README.md
-├── package.json
-├── .claude/skills/          # Claude skill definitions
-├── .opencode/commands/      # OpenCode command entrypoints
-├── config/                  # Profile templates and user config
-├── templates/               # CV template, portal template, canonical states
-├── modes/                   # Shared modes plus language variants
-├── batch/                   # Batch prompts, state, logs, and runner script
-├── dashboard/               # Optional Go TUI application
-├── docs/                    # Setup, architecture, Codex, and other docs
-├── data/                    # Tracker and pipeline data
-├── reports/                 # Generated evaluation reports
-├── output/                  # Generated PDFs and other outputs
-├── interview-prep/          # Story bank and interview research
-├── examples/                # Sample user-facing files
-├── fonts/                   # Fonts used by PDF generation
-└── *.mjs                    # Core Node-based utilities and pipeline scripts
-```
+## Project Structure
 
-# Key Features
+### Repository Summary
+The repository is centered on agent instructions (`AGENTS.md`, `CLAUDE.md`), workflow modes in `modes/`, root automation scripts, user-owned data in `data/`, generated artifacts in `reports/` and `output/`, and supporting docs in `docs/`.
 
-- Auto-pipeline flow for a pasted job description or job URL.
-- Structured offer evaluation documented around the A-F scoring flow in `docs/ARCHITECTURE.md`.
-- ATS-oriented PDF generation through `generate-pdf.mjs` and `templates/cv-template.html`.
-- Portal scanning through `scan.mjs` with YAML configuration and API-backed discovery for supported portals.
-- Batch processing through `batch/batch-runner.sh` and `claude -p` workers.
-- Interview-prep artifacts, story-bank accumulation, and negotiation guidance described in the repository docs.
-- Human-in-the-loop guardrails: the system evaluates and recommends, but does not auto-submit applications.
-- Pipeline integrity tooling for merge, deduplication, normalization, liveness, and verification.
-- Optional Go dashboard for browsing, filtering, sorting, previewing, and updating application status.
+### Reference
+See [`docs/agents/PROJECT_STRUCTURE.md`](docs/agents/PROJECT_STRUCTURE.md) for the full repository layout, major directories, and key entrypoints.
 
-# Getting Started
+## Key Features
 
+### Capability Summary
+Career-Ops supports auto-pipeline evaluation, structured offer scoring, ATS-oriented PDF generation, portal scanning, batch processing with `claude -p` workers, tracker integrity tooling, specialized interview and research modes, and an optional dashboard for browsing and updating application status.
+
+### Reference
+See [`docs/agents/KEY_FEATURES.md`](docs/agents/KEY_FEATURES.md) for the feature breakdown and file-level anchors.
+
+## Getting Started
+
+### Quick Start
 1. Install dependencies:
-
-```bash
-npm install
-npx playwright install chromium
-```
-
-2. Create your user-layer files:
-
-```bash
-cp config/profile.example.yml config/profile.yml
-cp templates/portals.example.yml portals.yml
-```
-
-3. Add the remaining personal inputs in the repository root as needed:
-- `cv.md` for the candidate CV.
-- `article-digest.md` for optional proof points.
-- `modes/_profile.md` for user-specific mode customization.
-
+   ```bash
+   npm install
+   npx playwright install chromium
+   ```
+2. Create the user-layer configuration files from the checked-in templates:
+   ```bash
+   cp config/profile.example.yml config/profile.yml
+   cp modes/_profile.template.md modes/_profile.md
+   cp templates/portals.example.yml portals.yml
+   ```
+3. Add `cv.md` in the repository root, and add `article-digest.md` if you want extra proof points.
 4. Validate the setup:
-
-```bash
-npm run doctor
-npm run verify
-npm run sync-check
-```
-
+   ```bash
+   npm run doctor
+   npm run verify
+   npm run sync-check
+   ```
 5. Start from your preferred client in this repository:
-- Claude Code usage is documented in `README.md` and `docs/SETUP.md`.
-- Codex usage is documented in `docs/CODEX.md`; the routing map points Codex to the existing `modes/*` files.
+   - Claude Code is documented in [`README.md`](README.md) and [`docs/SETUP.md`](docs/SETUP.md).
+   - Codex is documented in [`docs/CODEX.md`](docs/CODEX.md).
 
-6. Optional: build the dashboard:
+### Reference
+See [`docs/agents/GETTING_STARTED.md`](docs/agents/GETTING_STARTED.md) for the condensed startup flow, [`docs/SETUP.md`](docs/SETUP.md) for the fuller setup guide, and [`docs/CODEX.md`](docs/CODEX.md) for Codex-specific routing.
 
-```bash
-cd dashboard && go build -o career-dashboard .
-./career-dashboard --path ..
-```
+## Development
 
-# Development
+### Common Commands
+- `npm run doctor`
+- `npm run verify`
+- `npm run normalize`
+- `npm run dedup`
+- `npm run merge`
+- `npm run pdf`
+- `npm run sync-check`
+- `npm run update:check`
+- `npm run update`
+- `npm run rollback`
+- `npm run liveness`
+- `npm run scan`
 
-- There is no top-level `build` or `test` npm script in `package.json`; the repository relies on targeted maintenance and verification scripts instead.
-- Main npm scripts are:
-  - `npm run doctor`
-  - `npm run verify`
-  - `npm run normalize`
-  - `npm run dedup`
-  - `npm run merge`
-  - `npm run pdf`
-  - `npm run sync-check`
-  - `npm run update:check`
-  - `npm run update`
-  - `npm run rollback`
-  - `npm run liveness`
-  - `npm run scan`
-- Main user-facing slash commands documented in `README.md` are `/career-ops`, `/career-ops scan`, `/career-ops pdf`, `/career-ops batch`, `/career-ops tracker`, `/career-ops apply`, `/career-ops pipeline`, `/career-ops contacto`, `/career-ops deep`, `/career-ops training`, and `/career-ops project`.
-- OpenCode command entrypoints live in `.opencode/commands/` and currently cover the same core flows as the checked-in command files there.
-- If you change the dashboard, build it with `cd dashboard && go build -o career-dashboard .`.
-- `CONTRIBUTING.md` recommends testing changes with a fresh clone and treating personal data files as out of bounds for commits.
+If you change the dashboard, build it from `dashboard/` with `go build -o career-dashboard .`.
 
-# Configuration
+### Reference
+See [`docs/agents/DEVELOPMENT_WORKFLOW.md`](docs/agents/DEVELOPMENT_WORKFLOW.md) for the agent-oriented workflow summary and [`docs/SCRIPTS.md`](docs/SCRIPTS.md) for the full script reference.
 
-- `config/profile.example.yml` is the template for `config/profile.yml` and includes `candidate`, `target_roles`, `narrative`, `compensation`, and `location` sections, plus an optional Canva resume design ID.
-- `templates/portals.example.yml` is the scanner template. It documents scanner strategy, `title_filter`, `search_queries`, and `tracked_companies`; users copy it to `portals.yml` in the root.
-- `templates/states.yml` defines the canonical application states used by both the tracker writer and the dashboard.
-- `modes/_profile.md`, `config/profile.yml`, `article-digest.md`, and `portals.yml` are the intended homes for personalization.
-- `DATA_CONTRACT.md` defines the user layer versus the system layer. Treat it and `CLAUDE.md` as the source of truth when deciding where edits belong.
-- `modes/` includes language-specific directories such as `modes/de`, `modes/fr`, `modes/ja`, `modes/pt`, and `modes/ru` in addition to the default top-level mode files.
-- `.envrc` and `flake.nix` provide an optional Nix-based development shell with Playwright-related environment settings.
+## Configuration
 
-# Architecture
+### Configuration Summary
+- `config/profile.yml` is the main profile file and is created from `config/profile.example.yml`.
+- `modes/_profile.md` is the user override file and should be created from `modes/_profile.template.md`.
+- `portals.yml` is the scanner configuration copied from `templates/portals.example.yml`.
+- `templates/states.yml` defines the canonical tracker statuses.
+- `DATA_CONTRACT.md` remains the source of truth for user-layer versus system-layer boundaries.
 
-The repository follows an agent-driven architecture documented in `docs/ARCHITECTURE.md` and `docs/CODEX.md`.
+### Reference
+See [`docs/agents/CONFIGURATION.md`](docs/agents/CONFIGURATION.md) for the summarized configuration map, [`docs/CUSTOMIZATION.md`](docs/CUSTOMIZATION.md) for the canonical customization guide, and [`DATA_CONTRACT.md`](DATA_CONTRACT.md) for edit boundaries.
 
-- Entry and routing: Codex should use `AGENTS.md` as the entry point, then route into `CLAUDE.md`, `modes/_shared.md`, and the relevant mode file for the requested workflow.
-- Single-offer flow: a pasted JD or URL is extracted, classified, evaluated, written to `reports/`, converted to a PDF, and tracked.
-- Scanner flow: `scan.mjs` reads `portals.yml`, detects supported portal APIs, filters titles, deduplicates against tracker and history files, and appends new work to the pipeline.
-- Batch flow: `batch/batch-runner.sh` reads `batch-input.tsv`, `batch-prompt.md`, and `batch-state.tsv`, writes per-offer logs and tracker additions, and supports parallelism, retries, and resumability.
-- Tracker flow: TSV additions are merged into `data/applications.md`; per `docs/CODEX.md`, do not add new tracker rows directly to `data/applications.md`.
-- Dashboard flow: `dashboard/main.go` loads applications, computes metrics, enriches report summaries, opens report views and URLs, and supports inline status updates.
-- Data flow: `cv.md`, `article-digest.md`, `config/profile.yml`, `portals.yml`, `templates/states.yml`, and `templates/cv-template.html` provide the main pipeline inputs.
+## Architecture
 
-# Contributing
+### System Summary
+Codex should enter through `AGENTS.md`, then reuse `CLAUDE.md`, `docs/CODEX.md`, and the relevant `modes/*` files. Single-offer flows generate a report, PDF, and tracker addition. Scanner flows read `portals.yml` through `scan.mjs`. Batch flows use `batch/batch-runner.sh` and `batch/batch-prompt.md`. Tracker additions are merged into `data/applications.md`, and the dashboard reads the local tracker state from `dashboard/`.
 
-- Read `CONTRIBUTING.md` before proposing repository changes.
-- Open an issue first for non-trivial contributions.
-- Keep changes aligned with the existing architecture and the project's stated philosophy of simple, minimal, quality-focused changes.
-- Do not commit personal data such as real CVs, populated profile files, tracker data, reports, or other user-specific artifacts.
-- Respect the project boundaries in `CONTRIBUTING.md`: do not add prohibited scraping for disallowed platforms, do not enable automatic application submission, and do not introduce external API dependencies without prior discussion.
+### Reference
+See [`docs/agents/SYSTEM_ARCHITECTURE.md`](docs/agents/SYSTEM_ARCHITECTURE.md) for the condensed system reference and [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the canonical architecture walkthrough.
 
-# License
+## Contributing
 
-This project is licensed under the MIT License. See `LICENSE` for the full text. For related project policies, also review `LEGAL_DISCLAIMER.md`, `SECURITY.md`, `SUPPORT.md`, and `GOVERNANCE.md`.
+### Expectations
+Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before proposing non-trivial changes. The repository asks contributors to open an issue first, avoid committing personal data, respect the no-auto-submit rule, and avoid disallowed scraping or unapproved external API dependencies.
+
+### Reference
+See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+## License
+
+### Reference
+Career-Ops is released under the MIT License in [`LICENSE`](LICENSE). Related project policies live in [`LEGAL_DISCLAIMER.md`](LEGAL_DISCLAIMER.md), [`SECURITY.md`](SECURITY.md), [`SUPPORT.md`](SUPPORT.md), and [`GOVERNANCE.md`](GOVERNANCE.md).

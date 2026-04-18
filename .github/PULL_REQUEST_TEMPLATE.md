@@ -20,8 +20,8 @@
 - [ ] I have read [CONTRIBUTING.md](https://github.com/santifer/career-ops/blob/main/CONTRIBUTING.md)
 - [ ] I linked a related issue above (required for features and architecture changes)
 - [ ] My PR does not include personal data (CV, email, real names)
-- [ ] I ran `node test-all.mjs` and all tests pass
-- [ ] If I touched the split app or shared contracts, I also ran `npm run backend:check` and `npm run frontend:build`
+- [ ] I ran `node test-all.mjs --quick` and the minimal smoke suite passes
+- [ ] If I touched the split app or shared contracts, I also ran `npm run backend:check` and `npm run frontend:install && npm run frontend:build`
 - [ ] If I changed request/response shapes or migration behavior, I updated `shared/contracts/api-contract.*` and `docs/API_CONTRACT.md` together
 - [ ] If I removed or retained compatibility logic, I explained the deprecation/cleanup status in the PR description
 - [ ] My changes respect the [Data Contract](https://github.com/santifer/career-ops/blob/main/DATA_CONTRACT.md) (no modifications to user-layer files)

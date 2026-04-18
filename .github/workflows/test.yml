@@ -16,5 +16,7 @@ jobs:
         with:
           go-version: "1.22"
       - run: npm install
-      - run: npm install --prefix frontend
+      - run: npm run backend:check
+      - run: npm run frontend:install
+      - run: npm run frontend:build
       - run: node test-all.mjs --quick

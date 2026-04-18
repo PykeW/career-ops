@@ -53,7 +53,7 @@ Canonical response:
 }
 ```
 
-Compatibility aliases remain available in the backend response for gradual migration:
+The canonical backend response is shown above. Shared contract helpers still normalize the following legacy aliases during migration if older payloads surface:
 
 - `cvContent`
 - `cv`
@@ -112,7 +112,7 @@ Canonical response fields:
 }
 ```
 
-Compatibility aliases remain available for migration:
+Canonical response fields are preferred. Compatibility aliases remain temporarily available during migration:
 
 - `filename`
 - `downloadUrl`
@@ -157,7 +157,7 @@ Frontend usage currently includes:
 ## Migration guidance
 
 - New frontend code should write canonical request fields only (`content`, `jobDescription`, `company`, `targetRole`) and read canonical response fields first.
-- Compatibility aliases are transitional read/normalize paths owned by `shared/contracts/api-contract.*`; do not reintroduce direct alias parsing elsewhere in `backend/` or `frontend/`.
+- Compatibility aliases are transitional migration paths owned in `shared/contracts/api-contract.*` (and, where still required, emitted by backend builders for migration). Do not reintroduce direct alias parsing elsewhere in `backend/`, `frontend/`, or legacy web clients.
 - When the contract changes, update `shared/contracts/api-contract.mjs`, `shared/contracts/api-contract.ts`, and `shared/contracts/api-contract.d.ts` together, then align backend/frontend consumers and this document in the same PR.
-- Before removing an alias or old response shape, confirm split-app smoke passes (`npm run backend:check`, `npm install --prefix frontend && npm run frontend:build`, and `node test-all.mjs --quick`) and call out the removal in the PR notes/checklist.
+- Before removing an alias or old response shape, confirm split-app smoke passes (`npm run backend:check`, `npm run frontend:install && npm run frontend:build`, and `node test-all.mjs --quick`) and call out the removal in the PR notes/checklist.
 - Keep `web/server.mjs` as a thin deprecated shim only; contract logic belongs in `backend/`, `frontend/`, and `shared/contracts/`.

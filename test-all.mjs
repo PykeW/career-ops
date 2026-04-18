@@ -315,7 +315,7 @@ if (fileExists('frontend/package.json')) {
       fail('Split frontend build smoke failed');
     }
   } else {
-    warn('Split frontend dependencies missing; run `npm install --prefix frontend` before smoke validation');
+    warn('Split frontend dependencies missing; run `npm run frontend:install` before smoke validation');
   }
 } else {
   warn('frontend/package.json missing; split frontend smoke skipped');

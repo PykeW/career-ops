@@ -1,18 +1,18 @@
 # Career-Ops
 
-AI-powered job search operations toolkit for evaluating roles, generating tailored resumes, scanning portals, and tracking applications locally.
+Maintainer-facing guide to the local-first job-search automation repository, its runtime surfaces, and its update boundaries.
 
 ## Project Name
 
-**Career-Ops** — a local-first, agent-driven job search system that combines workflow prompts, automation scripts, a split frontend/backend app, and optional terminal tooling.
+**Career-Ops** — an agent-assisted repository for evaluating roles, generating tailored resumes, scanning portals, and maintaining a local application pipeline.
 
 ## Overview
 
-Career-Ops turns an AI coding CLI into a job-search operating system. The repository helps users evaluate pasted job descriptions or URLs, generate tailored ATS-oriented resumes, scan portals for relevant openings, manage application tracking data, and keep the overall pipeline consistent with verification and normalization scripts. Most workflows are local-file based, with user data stored in markdown, YAML, TSV, and generated artifacts inside the repository.
+Career-Ops is a local-first repository that combines prompt-driven workflows, automation scripts, a split frontend/backend application, and optional terminal tooling into a single job-search operations system. It evaluates pasted job descriptions or URLs, generates tailored ATS-oriented resume artifacts, scans portals for relevant openings, and keeps tracker data consistent through merge, normalization, deduplication, and verification scripts.
 
-The project is not just a prompt collection. It includes checked-in workflow modes under `modes/`, root Node.js automation scripts, a dedicated Express backend, a Vite + React frontend for editing `cv.md` and generating markdown resumes, a shared API contract layer under `shared/contracts/`, batch-processing helpers for `claude -p`, and an optional Go dashboard for viewing and updating application progress.
+For maintainers and coding agents, this file is the primary orientation document. Read it together with `CLAUDE.md`, `DATA_CONTRACT.md`, `docs/ARCHITECTURE.md`, and `docs/API_CONTRACT.md` before making non-trivial changes. The repository stores user-owned data in local markdown, YAML, TSV, and generated artifacts, while system-layer scripts, templates, and docs remain updateable under the rules defined in `DATA_CONTRACT.md`.
 
-The repository is intentionally human-in-the-loop. It can evaluate, draft, personalize, organize, and recommend, but it should not auto-submit applications. Personalization belongs in user-layer files such as `config/profile.yml`, `modes/_profile.md`, `article-digest.md`, `portals.yml`, and tracker data under `data/`, while system-layer scripts, templates, and docs stay safe to update according to `DATA_CONTRACT.md`.
+The repository is intentionally human-in-the-loop. Automation may evaluate, draft, personalize, organize, and recommend, but it must not auto-submit applications. Personalization belongs in user-layer files such as `config/profile.yml`, `modes/_profile.md`, `article-digest.md`, `portals.yml`, and tracker data under `data/`, while shared scripts, templates, and docs should stay system-layer and update-safe.
 
 ## Technology Stack
 

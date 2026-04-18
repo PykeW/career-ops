@@ -15,7 +15,6 @@
     "rollback": "node update-system.mjs rollback",
     "liveness": "node check-liveness.mjs",
     "scan": "node scan.mjs",
-    "backend": "node backend/server.mjs",
     "backend:start": "node backend/server.mjs",
     "backend:dev": "node --watch backend/server.mjs",
     "backend:check": "node --check backend/server.mjs && node --check backend/routes/api.mjs && node --check backend/lib/data.mjs && node --check backend/lib/http.mjs && node --check backend/lib/project-paths.mjs && node --check backend/lib/resume.mjs",

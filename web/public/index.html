@@ -15,8 +15,8 @@
           <h1>CV editor and tailored resume generator</h1>
           <p>
             Edit the canonical <code>cv.md</code>, save it explicitly, and then
-            generate a targeted PDF from the latest saved CV plus a job
-            description.
+            generate a tailored Markdown resume from the latest saved CV plus a
+            job description.
           </p>
         </div>
 
@@ -50,7 +50,12 @@
             generation always uses the latest saved snapshot on disk.
           </p>
 
-          <div class="notice" id="saveFeedback" role="status" aria-live="polite">
+          <div
+            class="notice"
+            id="saveFeedback"
+            role="status"
+            aria-live="polite"
+          >
             Loading <code>/api/cv</code>...
           </div>
 
@@ -79,29 +84,30 @@
           </div>
 
           <p class="panel-description">
-            Add job requirements, optional company and role context, then ask the
-            backend to build a tailored PDF.
+            Add job requirements plus optional company and role context, then
+            ask the backend to build a tailored Markdown resume.
           </p>
 
           <form id="generateForm" class="generator-form">
             <div class="field-grid">
               <label class="field" for="companyInput">
                 <span class="field-label">Company</span>
-                <input id="companyInput" name="company" type="text" placeholder="Optional" />
+                <input
+                  id="companyInput"
+                  name="company"
+                  type="text"
+                  placeholder="Optional"
+                />
               </label>
 
               <label class="field" for="roleInput">
                 <span class="field-label">Role</span>
-                <input id="roleInput" name="role" type="text" placeholder="Optional" />
-              </label>
-
-              <label class="field" for="formatSelect">
-                <span class="field-label">Format</span>
-                <select id="formatSelect" name="format">
-                  <option value="">Auto</option>
-                  <option value="a4">A4</option>
-                  <option value="letter">Letter</option>
-                </select>
+                <input
+                  id="roleInput"
+                  name="targetRole"
+                  type="text"
+                  placeholder="Optional"
+                />
               </label>
             </div>
 
@@ -123,7 +129,7 @@
                 <span id="jobDescriptionStats">0 characters</span>
               </div>
               <button class="button primary" id="generateButton" type="submit">
-                Generate PDF
+                Generate Markdown
               </button>
             </div>
           </form>
@@ -137,7 +143,7 @@
             </div>
             <p id="resultMessage" class="result-message">
               Save your CV, paste a job description, and generate a tailored
-              resume PDF.
+              markdown resume.
             </p>
             <dl id="resultMetadata" class="metadata-list"></dl>
             <div id="resultLinks" class="result-links"></div>

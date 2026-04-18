@@ -1,6 +1,4 @@
 import {
-  buildCvRequest as buildCanonicalCvRequest,
-  buildResumeGenerateRequest as buildCanonicalResumeGenerateRequest,
   normalizeCvResponse,
   normalizeErrorPayload,
   normalizeProfileResponse,
@@ -8,6 +6,7 @@ import {
   type ContractCvResponse,
   type ContractErrorPayload,
   type ContractProfileResponse,
+  type ContractResumeGenerateRequest,
   type ContractResumeResult,
 } from "../../../shared/contracts/api-contract";
 
@@ -23,6 +22,7 @@ export interface LinkEntry {
   label: string;
   href: string;
 }
+
 export type ProfileSnapshot = ContractProfileResponse["snapshot"];
 
 export interface ResumeResult {
@@ -46,17 +46,13 @@ const FILE_LIKE_PATTERN = /\.[a-z\d]{1,8}(?:[?#].*)?$/i;
 const HUMANIZED_LABELS: Record<string, string> = {
   artifactType: "Artifact type",
   company: "Company",
-  companyName: "Company",
   fileName: "File name",
-  filename: "File name",
   generatedAt: "Generated at",
-  keywordCoverage: "Keyword coverage",
+  keywords: "Keywords",
   language: "Language",
-  role: "Role",
+  targetRole: "Role",
   sourceCvPath: "Source CV",
   sourceProfilePath: "Source profile",
-  status: "Status",
-  targetRole: "Role",
 };
 
 export const DEFAULT_API_BASE_URL = "http://127.0.0.1:8787/api";
@@ -98,18 +94,36 @@ export async function fetchJson<T = unknown>(
   return (payload && typeof payload === "object" ? payload : {}) as T;
 }
 
-export function buildCvRequest(
-  content: string
-): ReturnType<typeof buildCanonicalCvRequest> {
-  return buildCanonicalCvRequest(content);
+export function buildCvRequest(content: string): { content: string } {
+  return {
+    content: typeof content === "string" ? content : "",
+  };
 }
 
-export function buildResumeGenerateRequest(payload: {
-  jobDescription: string;
-  company?: string;
-  targetRole?: string;
-}): Record<string, string> {
-  return buildCanonicalResumeGenerateRequest(payload);
+export function buildResumeGenerateRequest(
+  payload: ContractResumeGenerateRequest
+): Record<string, string> {
+  const jobDescription =
+    typeof payload.jobDescription === "string"
+      ? payload.jobDescription.trim()
+      : "";
+  const company =
+    typeof payload.company === "string" ? payload.company.trim() : "";
+  const targetRole =
+    typeof payload.targetRole === "string" ? payload.targetRole.trim() : "";
+  const request: Record<string, string> = {
+    jobDescription,
+  };
+
+  if (company) {
+    request.company = company;
+  }
+
+  if (targetRole) {
+    request.targetRole = targetRole;
+  }
+
+  return request;
 }
 
 export function extractCvDocument(payload: unknown): CvDocument {
@@ -129,8 +143,8 @@ export function extractResumeResult(payload: unknown): ResumeResult {
     company: normalized.company,
     role: normalized.targetRole,
     message: normalized.message,
-    metadata: collectMetadata(payload, normalized),
-    links: collectLinks(payload, normalized),
+    metadata: collectMetadata(normalized),
+    links: collectLinks(normalized),
     notes: normalized.notes,
   };
 }
@@ -154,197 +168,73 @@ export function getErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-function collectMetadata(
-  payload: unknown,
-  normalized: ContractResumeResult
-): MetadataEntry[] {
+function collectMetadata(normalized: ContractResumeResult): MetadataEntry[] {
   const entries: MetadataEntry[] = [];
-  const seen = new Set<string>();
-  const stableFields: Array<[string, string]> = [
-    ["company", normalized.company],
-    ["role", normalized.targetRole],
-    ["fileName", normalized.fileName],
-    ["generatedAt", normalized.generatedAt],
-    ["artifactType", normalized.artifactType],
-    ["language", normalized.language],
-    ["sourceCvPath", normalized.sourceCvPath],
-    ["sourceProfilePath", normalized.sourceProfilePath || ""],
-  ];
 
-  for (const [key, value] of stableFields) {
-    addMetadataEntry(entries, seen, key, value);
-  }
+  addMetadataEntry(entries, "company", normalized.company);
+  addMetadataEntry(entries, "targetRole", normalized.targetRole);
+  addMetadataEntry(entries, "fileName", normalized.fileName);
+  addMetadataEntry(entries, "generatedAt", normalized.generatedAt);
+  addMetadataEntry(entries, "artifactType", normalized.artifactType);
+  addMetadataEntry(entries, "language", normalized.language);
+  addMetadataEntry(entries, "sourceCvPath", normalized.sourceCvPath);
+  addMetadataEntry(
+    entries,
+    "sourceProfilePath",
+    normalized.sourceProfilePath || ""
+  );
 
-  for (const metadataPath of ["metadata", "data.metadata", "result.metadata"]) {
-    const metadataRecord = asRecord(getNestedValue(payload, metadataPath));
-    if (!metadataRecord) {
-      continue;
-    }
-
-    for (const [key, value] of Object.entries(metadataRecord)) {
-      if (Array.isArray(value)) {
-        continue;
-      }
-
-      addMetadataEntry(entries, seen, key, toDisplayString(value));
-    }
-  }
-
-  for (const [key, value] of [
-    ["status", toDisplayString(getNestedValue(payload, "status"))],
-    [
-      "keywordCoverage",
-      toDisplayString(getNestedValue(payload, "keywordCoverage")),
-    ],
-    ["keywordCoverage", toDisplayString(getNestedValue(payload, "coverage"))],
-  ] as Array<[string, string]>) {
-    addMetadataEntry(entries, seen, key, value);
+  if (normalized.keywords.length) {
+    addMetadataEntry(entries, "keywords", normalized.keywords.join(", "));
   }
 
   return entries;
 }
 
-function collectLinks(
-  payload: unknown,
-  normalized: ContractResumeResult
-): LinkEntry[] {
-  const entries: LinkEntry[] = [];
-  const seen = new Set<string>();
-  const preferredDownloadHref = normalizePreferredDownloadHref(normalized);
+function collectLinks(normalized: ContractResumeResult): LinkEntry[] {
+  const downloadHref = normalizeDownloadHref(
+    normalized.downloadPath,
+    normalized.fileName
+  );
 
-  if (preferredDownloadHref) {
-    entries.push({
-      key: "downloadUrl",
+  if (!downloadHref) {
+    return [];
+  }
+
+  return [
+    {
+      key: "downloadPath",
       label: "Download .md",
-      href: preferredDownloadHref,
-    });
-    seen.add(preferredDownloadHref);
-  }
-
-  const candidateObjects = [
-    payload,
-    getNestedValue(payload, "links"),
-    getNestedValue(payload, "data"),
-    getNestedValue(payload, "data.links"),
-    getNestedValue(payload, "result"),
-    getNestedValue(payload, "result.links"),
-    getNestedValue(payload, "resume"),
-    getNestedValue(payload, "resume.links"),
-    getNestedValue(payload, "output"),
-    getNestedValue(payload, "output.links"),
+      href: downloadHref,
+    },
   ];
-
-  for (const candidate of candidateObjects) {
-    const record = asRecord(candidate);
-    if (!record) {
-      continue;
-    }
-
-    for (const [key, rawValue] of Object.entries(record)) {
-      if (typeof rawValue !== "string") {
-        continue;
-      }
-
-      const href = normalizeLinkValue(key, rawValue, normalized.fileName);
-      if (!href || seen.has(href)) {
-        continue;
-      }
-
-      entries.push({
-        key,
-        label: buildLinkLabel(key, rawValue, href),
-        href,
-      });
-      seen.add(href);
-    }
-  }
-
-  return entries;
 }
 
-function normalizePreferredDownloadHref(
-  normalized: ContractResumeResult
-): string {
-  if (normalized.downloadPath) {
-    const preferredHref = normalizeLinkValue(
-      "downloadPath",
-      normalized.downloadPath,
-      normalized.fileName
-    );
+function normalizeDownloadHref(downloadPath: string, fileName: string): string {
+  const trimmedPath = downloadPath.trim();
+  if (trimmedPath) {
+    if (ABSOLUTE_URL_PATTERN.test(trimmedPath)) {
+      return trimmedPath;
+    }
 
-    if (preferredHref) {
-      return preferredHref;
+    if (
+      trimmedPath.startsWith("/") ||
+      trimmedPath.startsWith("./") ||
+      trimmedPath.startsWith("../")
+    ) {
+      return resolveBackendAssetUrl(trimmedPath);
+    }
+
+    if (/^(api|output|downloads)\//i.test(trimmedPath)) {
+      return resolveBackendAssetUrl(`/${trimmedPath.replace(/^\/+/, "")}`);
+    }
+
+    if (FILE_LIKE_PATTERN.test(trimmedPath)) {
+      return buildDownloadUrl(trimmedPath);
     }
   }
 
-  if (normalized.fileName) {
-    return buildDownloadUrl(normalized.fileName);
-  }
-
-  return "";
-}
-
-function normalizeLinkValue(
-  key: string,
-  value: string,
-  fileName: string
-): string {
-  const trimmedValue = value.trim();
-  if (!trimmedValue) {
-    return "";
-  }
-
-  const keyLower = key.toLowerCase();
-  if (keyLower === "filename" || keyLower === "filenameonly") {
-    return "";
-  }
-
-  if (ABSOLUTE_URL_PATTERN.test(trimmedValue)) {
-    return trimmedValue;
-  }
-
-  if (
-    trimmedValue.startsWith("/") ||
-    trimmedValue.startsWith("./") ||
-    trimmedValue.startsWith("../")
-  ) {
-    return resolveBackendAssetUrl(trimmedValue);
-  }
-
-  if (/^(api|output|downloads)\//i.test(trimmedValue)) {
-    return resolveBackendAssetUrl(`/${trimmedValue.replace(/^\/+/, "")}`);
-  }
-
-  if (keyLower.includes("download") && FILE_LIKE_PATTERN.test(trimmedValue)) {
-    return buildDownloadUrl(trimmedValue);
-  }
-
-  if (trimmedValue === fileName && FILE_LIKE_PATTERN.test(trimmedValue)) {
-    return buildDownloadUrl(trimmedValue);
-  }
-
-  return "";
-}
-
-function buildLinkLabel(key: string, rawValue: string, href: string): string {
-  const keyLower = key.toLowerCase();
-  const extension = extensionFromValue(rawValue || href);
-
-  if (keyLower.includes("preview") || extension === ".html") {
-    return "Open preview";
-  }
-
-  if (keyLower.includes("download")) {
-    return extension === ".md" || extension === ""
-      ? "Download .md"
-      : "Download generated file";
-  }
-
-  if (extension === ".md" || keyLower.includes("markdown")) {
-    return "Open generated .md";
-  }
-
-  return "Open generated file";
+  return fileName ? buildDownloadUrl(fileName) : "";
 }
 
 function buildDownloadUrl(fileName: string): string {
@@ -389,54 +279,18 @@ function safeJsonParse(text: string): unknown {
   }
 }
 
-function getNestedValue(source: unknown, path: string): unknown {
-  const segments = path.split(".").filter(Boolean);
-  let current: unknown = source;
-
-  for (const segment of segments) {
-    if (Array.isArray(current)) {
-      const index = Number.parseInt(segment, 10);
-      current = Number.isInteger(index) ? current[index] : undefined;
-      continue;
-    }
-
-    const record = asRecord(current);
-    if (!record || !(segment in record)) {
-      return undefined;
-    }
-
-    current = record[segment];
-  }
-
-  return current;
-}
-
-function asRecord(value: unknown): Record<string, unknown> | null {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return null;
-  }
-
-  return value as Record<string, unknown>;
-}
-
 function addMetadataEntry(
   entries: MetadataEntry[],
-  seen: Set<string>,
   key: string,
   value: string
 ): void {
-  const normalizedValue = value.trim();
   const normalizedKey = key.trim();
+  const normalizedValue = value.trim();
 
-  if (!normalizedKey || !normalizedValue || seen.has(normalizedKey)) {
+  if (!normalizedKey || !normalizedValue) {
     return;
   }
 
-  if (normalizedValue.includes("\n") || isProbablyLinkValue(normalizedValue)) {
-    return;
-  }
-
-  seen.add(normalizedKey);
   entries.push({
     label: humanizeKey(normalizedKey),
     value: normalizedValue,
@@ -454,95 +308,6 @@ function humanizeKey(key: string): string {
     .replace(/^./, (letter) => letter.toUpperCase());
 }
 
-function toDisplayString(value: unknown): string {
-  if (typeof value === "string") {
-    return value.trim();
-  }
-
-  if (typeof value === "number" || typeof value === "boolean") {
-    return String(value);
-  }
-
-  return "";
-}
-
-function normalizeUrl(value: string): string {
-  if (!value.trim()) {
-    return "";
-  }
-
-  if (ABSOLUTE_URL_PATTERN.test(value) || value.startsWith("mailto:")) {
-    return value;
-  }
-
-  if (value.includes("@") && !value.includes("/")) {
-    return `mailto:${value}`;
-  }
-
-  return `https://${value.replace(/^\/\//, "")}`;
-}
-
-function displayUrl(value: string): string {
-  if (!value) {
-    return "";
-  }
-
-  return value
-    .replace(/^mailto:/i, "")
-    .replace(/^https?:\/\//i, "")
-    .replace(/\/$/, "");
-}
-
-function formatLocationValue(value: unknown): string {
-  if (typeof value === "string") {
-    return value.trim();
-  }
-
-  const record = asRecord(value);
-  if (!record) {
-    return "";
-  }
-
-  return uniqueStrings([
-    toDisplayString(record.city),
-    toDisplayString(record.state),
-    toDisplayString(record.country),
-  ]).join(", ");
-}
-
-function uniqueStrings(values: Array<string | undefined>): string[] {
-  const seen = new Set<string>();
-  const result: string[] = [];
-
-  for (const value of values) {
-    const trimmedValue = typeof value === "string" ? value.trim() : "";
-    if (!trimmedValue || seen.has(trimmedValue)) {
-      continue;
-    }
-
-    seen.add(trimmedValue);
-    result.push(trimmedValue);
-  }
-
-  return result;
-}
-
 function basename(value: string): string {
   return value.split(/[\\/]/).filter(Boolean).pop() || "";
-}
-
-function extensionFromValue(value: string): string {
-  const base = basename(value.split("?")[0]?.split("#")[0] || "");
-  const dotIndex = base.lastIndexOf(".");
-  return dotIndex >= 0 ? base.slice(dotIndex).toLowerCase() : "";
-}
-
-function isProbablyLinkValue(value: string): boolean {
-  return (
-    ABSOLUTE_URL_PATTERN.test(value) ||
-    value.startsWith("/") ||
-    value.startsWith("./") ||
-    value.startsWith("../") ||
-    /^(api|output|downloads)\//i.test(value)
-  );
 }

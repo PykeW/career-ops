@@ -1,6 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
-import { extractCvDocument, fetchJson, getErrorMessage } from '../lib/api';
+import {
+  buildCvRequest,
+  extractCvDocument,
+  fetchJson,
+  getErrorMessage,
+} from "../lib/api";
 import {
   createLoadedCvFeedback,
   createLoadingCvFeedback,
@@ -11,7 +16,7 @@ import {
   getDirtyNotice,
   type CvStatus,
   type FeedbackState,
-} from '../lib/app-state';
+} from "../lib/app-state";
 
 interface UseCvDocumentResult {
   cvText: string;
@@ -31,14 +36,16 @@ interface UseCvDocumentResult {
 export function useCvDocument(apiBaseUrl: string): UseCvDocumentResult {
   const userEditedCvRef = useRef(false);
 
-  const [cvText, setCvText] = useState('');
-  const [persistedCv, setPersistedCv] = useState('');
+  const [cvText, setCvText] = useState("");
+  const [persistedCv, setPersistedCv] = useState("");
   const [cvLoading, setCvLoading] = useState(true);
   const [cvLoaded, setCvLoaded] = useState(false);
   const [cvMissing, setCvMissing] = useState(false);
   const [cvSaving, setCvSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
-  const [saveFeedback, setSaveFeedback] = useState<FeedbackState>(createLoadingCvFeedback(apiBaseUrl));
+  const [saveFeedback, setSaveFeedback] = useState<FeedbackState>(
+    createLoadingCvFeedback(apiBaseUrl)
+  );
 
   useEffect(() => {
     async function loadCv(): Promise<void> {
@@ -46,7 +53,7 @@ export function useCvDocument(apiBaseUrl: string): UseCvDocumentResult {
       setSaveFeedback(createLoadingCvFeedback(apiBaseUrl));
 
       try {
-        const payload = await fetchJson('cv');
+        const payload = await fetchJson("cv");
         const cvDocument = extractCvDocument(payload);
 
         setPersistedCv(cvDocument.content);
@@ -55,15 +62,22 @@ export function useCvDocument(apiBaseUrl: string): UseCvDocumentResult {
 
         if (!userEditedCvRef.current) {
           setCvText(cvDocument.content);
-          setSaveFeedback(createLoadedCvFeedback(cvDocument.content, cvDocument.path, apiBaseUrl));
+          setSaveFeedback(
+            createLoadedCvFeedback(
+              cvDocument.content,
+              cvDocument.path,
+              apiBaseUrl
+            )
+          );
           return;
         }
 
         setSaveFeedback(createProtectedLocalEditsFeedback(cvDocument.path));
       } catch (error) {
-        const status = typeof error === 'object' && error && 'status' in error
-          ? Number((error as { status?: number }).status)
-          : 0;
+        const status =
+          typeof error === "object" && error && "status" in error
+            ? Number((error as { status?: number }).status)
+            : 0;
         const missing = status === 404;
 
         setCvMissing(missing);
@@ -72,12 +86,12 @@ export function useCvDocument(apiBaseUrl: string): UseCvDocumentResult {
           missing
             ? createMissingCvFeedback()
             : {
-                tone: 'error',
+                tone: "error",
                 message: getErrorMessage(
                   error,
-                  `Could not load ${apiBaseUrl}/cv. You can keep editing locally and try saving again later.`,
+                  `Could not load ${apiBaseUrl}/cv. You can keep editing locally and try saving again later.`
                 ),
-              },
+              }
         );
       } finally {
         setCvLoading(false);
@@ -89,8 +103,18 @@ export function useCvDocument(apiBaseUrl: string): UseCvDocumentResult {
 
   const hasLocalEdits = cvText !== persistedCv;
   const hasSavedCv = cvLoaded && !cvMissing;
-  const cvStatus = getCvStatus(cvLoading, cvLoaded, cvMissing, hasLocalEdits, cvText);
-  const saveButtonLabel = cvSaving ? 'Saving...' : hasLocalEdits || !cvLoaded ? 'Save `cv.md`' : 'Saved';
+  const cvStatus = getCvStatus(
+    cvLoading,
+    cvLoaded,
+    cvMissing,
+    hasLocalEdits,
+    cvText
+  );
+  const saveButtonLabel = cvSaving
+    ? "Saving..."
+    : hasLocalEdits || !cvLoaded
+    ? "Save `cv.md`"
+    : "Saved";
   const saveDisabled = cvSaving || (!hasLocalEdits && cvLoaded);
   const dirtyNotice = getDirtyNotice({
     hasLocalEdits,
@@ -110,19 +134,15 @@ export function useCvDocument(apiBaseUrl: string): UseCvDocumentResult {
     }
 
     setCvSaving(true);
-    setSaveFeedback({ tone: 'neutral', message: 'Saving `cv.md`...' });
+    setSaveFeedback({ tone: "neutral", message: "Saving `cv.md`..." });
 
     try {
-      const payload = await fetchJson('cv', {
-        method: 'PUT',
+      const payload = await fetchJson("cv", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          content: cvText,
-          cvContent: cvText,
-          markdown: cvText,
-        }),
+        body: JSON.stringify(buildCvRequest(cvText)),
       });
 
       const cvDocument = extractCvDocument(payload);
@@ -136,8 +156,8 @@ export function useCvDocument(apiBaseUrl: string): UseCvDocumentResult {
       setSaveFeedback(createSaveSuccessFeedback(cvDocument.path));
     } catch (error) {
       setSaveFeedback({
-        tone: 'error',
-        message: getErrorMessage(error, 'Saving `cv.md` failed.'),
+        tone: "error",
+        message: getErrorMessage(error, "Saving `cv.md` failed."),
       });
     } finally {
       setCvSaving(false);

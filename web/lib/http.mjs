@@ -43,7 +43,7 @@ export async function readJsonBody(request, maxBytes = 1_000_000) {
   }
 }
 
-export function sendJson(response, statusCode, payload) {
+function sendJson(response, statusCode, payload) {
   const body = JSON.stringify(payload, null, 2);
   response.writeHead(statusCode, {
     'Cache-Control': 'no-store',
@@ -53,7 +53,7 @@ export function sendJson(response, statusCode, payload) {
   response.end(body);
 }
 
-export function sendError(response, statusCode, message, extra = {}) {
+function sendError(response, statusCode, message, extra = {}) {
   sendJson(response, statusCode, {
     ok: false,
     error: message,

@@ -1,8 +1,8 @@
-export const CONTRACT_VERSION = '2026-04-19';
+const CONTRACT_VERSION = '2026-04-19';
 
-export const CV_CONTENT_ALIASES = ['cvContent', 'cv', 'markdown'];
-export const CV_REQUEST_FIELDS = ['content', ...CV_CONTENT_ALIASES];
-export const CV_RESPONSE_PATHS = {
+const CV_CONTENT_ALIASES = ['cvContent', 'cv', 'markdown'];
+const CV_REQUEST_FIELDS = ['content', ...CV_CONTENT_ALIASES];
+const CV_RESPONSE_PATHS = {
   exists: ['exists'],
   path: ['path'],
   content: [
@@ -12,8 +12,7 @@ export const CV_RESPONSE_PATHS = {
     'markdown',
   ],
 };
-
-export const PROFILE_RESPONSE_PATHS = {
+const PROFILE_RESPONSE_PATHS = {
   exists: ['exists', 'hasProfile', 'profile.hasProfile'],
   path: ['path'],
   profile: ['profile'],
@@ -22,13 +21,13 @@ export const PROFILE_RESPONSE_PATHS = {
   notes: ['notes', 'profileNotes', 'snapshot.notes'],
 };
 
-export const RESUME_REQUEST_FIELDS = {
+const RESUME_REQUEST_FIELDS = {
   jobDescription: ['jobDescription'],
   company: ['company'],
   targetRole: ['targetRole'],
 };
 
-export const RESUME_RESULT_PATHS = {
+const RESUME_RESULT_PATHS = {
   ok: ['ok'],
   artifactType: ['artifactType'],
   contentType: ['contentType'],
@@ -46,10 +45,11 @@ export const RESUME_RESULT_PATHS = {
   sourceProfilePath: ['sourceProfilePath'],
   generatedAt: ['generatedAt'],
 };
-export const ERROR_PAYLOAD_PATHS = {
+const ERROR_PAYLOAD_PATHS = {
   error: ['error', 'message'],
   details: ['details'],
 };
+
 
 export function buildCvRequest(content = '') {
   return {

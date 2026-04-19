@@ -40,8 +40,13 @@ const elements = {
 const resultLinkLabels = {
   downloadPath: "Download .md",
 };
-
 const ABSOLUTE_URL_PATTERN = /^[a-z][a-z\d+.-]*:\/\//i;
+const FORMATTER_CACHE = {
+  timestamp: new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }),
+};
 
 const HUMANIZED_LABELS = {
   artifactType: "Artifact type",
@@ -340,8 +345,9 @@ function updateUi() {
     elements.dirtyNotice.textContent =
       "You have unsaved local edits. Save before generating if you want them included.";
   } else if (state.lastSavedAt) {
-    elements.dirtyNotice.textContent =
-      `Last saved ${formatTimestamp(state.lastSavedAt)}.`;
+    elements.dirtyNotice.textContent = `Last saved ${formatTimestamp(
+      state.lastSavedAt
+    )}.`;
   } else if (state.cvLoaded) {
     elements.dirtyNotice.textContent = "Editor matches the saved CV.";
   } else if (state.cvMissing) {
@@ -404,15 +410,20 @@ function collectMetadata(response) {
   }
 
   const entries = [];
+  const metadataFields = [
+    ["company", response.company],
+    ["targetRole", response.targetRole],
+    ["fileName", response.fileName],
+    ["generatedAt", response.generatedAt],
+    ["artifactType", response.artifactType],
+    ["language", response.language],
+    ["sourceCvPath", response.sourceCvPath],
+    ["sourceProfilePath", response.sourceProfilePath],
+  ];
 
-  addMetadataEntry(entries, "company", response.company);
-  addMetadataEntry(entries, "targetRole", response.targetRole);
-  addMetadataEntry(entries, "fileName", response.fileName);
-  addMetadataEntry(entries, "generatedAt", response.generatedAt);
-  addMetadataEntry(entries, "artifactType", response.artifactType);
-  addMetadataEntry(entries, "language", response.language);
-  addMetadataEntry(entries, "sourceCvPath", response.sourceCvPath);
-  addMetadataEntry(entries, "sourceProfilePath", response.sourceProfilePath);
+  for (const [key, value] of metadataFields) {
+    addMetadataEntry(entries, key, value);
+  }
 
   if (Array.isArray(response.keywords) && response.keywords.length) {
     addMetadataEntry(entries, "keywords", response.keywords.join(", "));
@@ -476,13 +487,8 @@ function buildResumeGenerateRequest({ jobDescription, company, targetRole }) {
     jobDescription: stringify(jobDescription),
   };
 
-  if (company && company.trim()) {
-    payload.company = company.trim();
-  }
-
-  if (targetRole && targetRole.trim()) {
-    payload.targetRole = targetRole.trim();
-  }
+  assignTrimmedString(payload, "company", company);
+  assignTrimmedString(payload, "targetRole", targetRole);
 
   return payload;
 }
@@ -595,7 +601,9 @@ async function fetchJson(url, options) {
 
   if (!response.ok) {
     const error = new Error(
-      payload && typeof payload === "object" && typeof payload.error === "string"
+      payload &&
+      typeof payload === "object" &&
+      typeof payload.error === "string"
         ? payload.error
         : `Request failed with status ${response.status}`
     );
@@ -619,6 +627,15 @@ function safeJsonParse(text) {
   }
 }
 
+function assignTrimmedString(target, key, value) {
+  const normalized = stringify(value);
+  if (!normalized) {
+    return;
+  }
+
+  target[key] = normalized;
+}
+
 function getErrorMessage(error, fallback) {
   if (error && typeof error.message === "string" && error.message.trim()) {
     return error.message;
@@ -639,11 +656,13 @@ function setPill(element, label, tone) {
 }
 
 function humanizeKey(key) {
-  return HUMANIZED_LABELS[key] ||
+  return (
+    HUMANIZED_LABELS[key] ||
     key
       .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
       .replace(/[_.-]+/g, " ")
-      .replace(/^./, (letter) => letter.toUpperCase());
+      .replace(/^./, (letter) => letter.toUpperCase())
+  );
 }
 
 function formatCount(value, noun) {
@@ -651,10 +670,7 @@ function formatCount(value, noun) {
 }
 
 function formatTimestamp(value) {
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(value);
+  return FORMATTER_CACHE.timestamp.format(value);
 }
 
 function isProbablyLinkValue(value) {

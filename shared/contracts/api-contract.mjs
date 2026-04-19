@@ -90,10 +90,6 @@ export function normalizeCvResponse(payload = {}) {
   };
 }
 
-export function buildProfileSnapshot(profile = null, options = {}) {
-  return buildProfileSnapshotFromSources([profile], options);
-}
-
 export function buildProfileResponse({
   exists = false,
   path = '',

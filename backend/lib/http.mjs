@@ -24,18 +24,6 @@ export function asyncHandler(handler) {
   };
 }
 
-export function pickFirstString(body, fieldNames) {
-  for (const fieldName of fieldNames) {
-    const value = body?.[fieldName];
-
-    if (typeof value === 'string' && value.trim()) {
-      return value;
-    }
-  }
-
-  return '';
-}
-
 export function parseCorsOrigins(env = process.env) {
   const configuredOrigins = env.BACKEND_CORS_ORIGINS
     ?.split(',')

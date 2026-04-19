@@ -70,11 +70,6 @@ export function buildCvResponse(
 
 export function normalizeCvResponse(payload?: unknown): ContractCvResponse;
 
-export function buildProfileSnapshot(
-  profile?: unknown,
-  options?: { exists?: boolean; source?: string; notes?: string[] }
-): ContractProfileSnapshot;
-
 export function buildProfileResponse(payload?: {
   exists?: boolean;
   path?: string;

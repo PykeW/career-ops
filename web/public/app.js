@@ -37,9 +37,6 @@ const elements = {
   resultLinks: document.getElementById("resultLinks"),
 };
 
-const resultLinkLabels = {
-  downloadPath: "Download .md",
-};
 const ABSOLUTE_URL_PATTERN = /^[a-z][a-z\d+.-]*:\/\//i;
 const FORMATTER_CACHE = {
   timestamp: new Intl.DateTimeFormat(undefined, {
@@ -263,17 +260,12 @@ async function generateResume(event) {
 
     const metadata = collectMetadata(response);
     const links = collectLinks(response);
-    const successMessage = response.message
-      ? response.message
-      : links.length
-      ? "Resume generated successfully. Use the link below to download the markdown result."
-      : "Resume generated successfully, but the backend did not include a canonical downloadPath.";
 
     setResult({
       tone: "success",
       stateLabel: "Ready",
       title: buildResultTitle(response),
-      message: successMessage,
+      message: response.message,
       metadata,
       links,
     });
@@ -298,8 +290,9 @@ async function generateResume(event) {
 function updateUi() {
   const cvLength = elements.cvEditor.value.length;
   const jdLength = elements.jobDescriptionInput.value.length;
-  const hasEditorText = elements.cvEditor.value.length > 0;
+  const hasEditorText = cvLength > 0;
   const hasJobDescription = Boolean(elements.jobDescriptionInput.value.trim());
+  const cvStatus = getCvUiStatus(hasEditorText);
 
   elements.cvStats.textContent = formatCount(cvLength, "character");
   elements.jobDescriptionStats.textContent = formatCount(jdLength, "character");
@@ -307,56 +300,70 @@ function updateUi() {
     state.cvSaving || (!state.hasLocalEdits && state.cvLoaded);
   elements.generateButton.disabled =
     state.generating || !hasJobDescription || state.cvMissing;
+  elements.generateHint.textContent = getGenerateHint(hasEditorText);
+  setPill(elements.cvLoadState, cvStatus.label, cvStatus.tone);
+  elements.saveCvButton.textContent = getSaveButtonLabel();
+  elements.dirtyNotice.textContent = getDirtyNotice();
+}
 
+function getGenerateHint(hasEditorText) {
   if (state.cvMissing) {
-    elements.generateHint.textContent = hasEditorText
+    return hasEditorText
       ? "Save your draft once to create cv.md before generating."
       : "Start drafting your CV, then save once to create cv.md.";
-  } else {
-    elements.generateHint.textContent = state.hasLocalEdits
-      ? "Unsaved CV edits are not included until you save them."
-      : "Generation uses the latest saved CV snapshot.";
   }
 
+  return state.hasLocalEdits
+    ? "Unsaved CV edits are not included until you save them."
+    : "Generation uses the latest saved CV snapshot.";
+}
+
+function getCvUiStatus(hasEditorText) {
   if (state.cvLoading) {
-    setPill(elements.cvLoadState, "Loading CV...", "neutral");
-  } else if (state.cvLoaded) {
-    setPill(
-      elements.cvLoadState,
-      state.hasLocalEdits ? "Unsaved edits" : "Saved copy loaded",
-      state.hasLocalEdits ? "warning" : "success"
-    );
-  } else if (state.cvMissing) {
-    setPill(elements.cvLoadState, "No saved CV yet", "warning");
-  } else if (hasEditorText) {
-    setPill(elements.cvLoadState, "Local draft only", "warning");
-  } else {
-    setPill(elements.cvLoadState, "Load failed", "error");
+    return { label: "Loading CV...", tone: "neutral" };
   }
 
+  if (state.cvLoaded) {
+    return state.hasLocalEdits
+      ? { label: "Unsaved edits", tone: "warning" }
+      : { label: "Saved copy loaded", tone: "success" };
+  }
+
+  if (state.cvMissing) {
+    return { label: "No saved CV yet", tone: "warning" };
+  }
+
+  return hasEditorText
+    ? { label: "Local draft only", tone: "warning" }
+    : { label: "Load failed", tone: "error" };
+}
+
+function getSaveButtonLabel() {
   if (state.cvSaving) {
-    elements.saveCvButton.textContent = "Saving...";
-  } else {
-    elements.saveCvButton.textContent =
-      state.hasLocalEdits || !state.cvLoaded ? "Save CV" : "Saved";
+    return "Saving...";
   }
 
+  return state.hasLocalEdits || !state.cvLoaded ? "Save CV" : "Saved";
+}
+
+function getDirtyNotice() {
   if (state.hasLocalEdits) {
-    elements.dirtyNotice.textContent =
-      "You have unsaved local edits. Save before generating if you want them included.";
-  } else if (state.lastSavedAt) {
-    elements.dirtyNotice.textContent = `Last saved ${formatTimestamp(
-      state.lastSavedAt
-    )}.`;
-  } else if (state.cvLoaded) {
-    elements.dirtyNotice.textContent = "Editor matches the saved CV.";
-  } else if (state.cvMissing) {
-    elements.dirtyNotice.textContent =
-      "No saved cv.md exists yet. Draft in the editor, then save to create it.";
-  } else {
-    elements.dirtyNotice.textContent =
-      "You can keep drafting locally even if the backend is not available yet.";
+    return "You have unsaved local edits. Save before generating if you want them included.";
   }
+
+  if (state.lastSavedAt) {
+    return `Last saved ${formatTimestamp(state.lastSavedAt)}.`;
+  }
+
+  if (state.cvLoaded) {
+    return "Editor matches the saved CV.";
+  }
+
+  if (state.cvMissing) {
+    return "No saved cv.md exists yet. Draft in the editor, then save to create it.";
+  }
+
+  return "You can keep drafting locally even if the backend is not available yet.";
 }
 
 function setSaveFeedback(message, tone) {
@@ -368,12 +375,12 @@ function setResult({ tone, stateLabel, title, message, metadata, links }) {
   setPill(elements.resultState, stateLabel, tone);
   elements.resultTitle.textContent = title;
   elements.resultMessage.textContent = message;
-  renderMetadata(metadata);
-  renderLinks(links);
+  renderNodes(elements.resultMetadata, metadata, createMetadataNodes);
+  renderNodes(elements.resultLinks, links, createResultLink);
 }
 
-function renderMetadata(entries) {
-  elements.resultMetadata.innerHTML = "";
+function renderNodes(container, entries, createNodes) {
+  container.innerHTML = "";
 
   if (!entries.length) {
     return;
@@ -381,27 +388,30 @@ function renderMetadata(entries) {
 
   const fragment = document.createDocumentFragment();
   for (const entry of entries) {
-    const term = document.createElement("dt");
-    term.textContent = entry.label;
-    const definition = document.createElement("dd");
-    definition.textContent = entry.value;
-    fragment.append(term, definition);
+    const nodes = [].concat(createNodes(entry) || []);
+    if (nodes.length) {
+      fragment.append(...nodes);
+    }
   }
 
-  elements.resultMetadata.appendChild(fragment);
+  container.appendChild(fragment);
 }
 
-function renderLinks(links) {
-  elements.resultLinks.innerHTML = "";
+function createMetadataNodes(entry) {
+  const term = document.createElement("dt");
+  term.textContent = entry.label;
+  const definition = document.createElement("dd");
+  definition.textContent = entry.value;
+  return [term, definition];
+}
 
-  for (const link of links) {
-    const anchor = document.createElement("a");
-    anchor.href = link.href;
-    anchor.target = "_blank";
-    anchor.rel = "noreferrer";
-    anchor.textContent = link.label;
-    elements.resultLinks.appendChild(anchor);
-  }
+function createResultLink(link) {
+  const anchor = document.createElement("a");
+  anchor.href = link.href;
+  anchor.target = "_blank";
+  anchor.rel = "noreferrer";
+  anchor.textContent = link.label;
+  return anchor;
 }
 
 function collectMetadata(response) {
@@ -460,7 +470,7 @@ function collectLinks(response) {
 
   return [
     {
-      label: resultLinkLabels.downloadPath,
+      label: "Download .md",
       href,
     },
   ];

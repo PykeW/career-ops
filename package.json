@@ -22,7 +22,7 @@
     "frontend:dev": "npm --prefix frontend run dev",
     "frontend:build": "npm --prefix frontend run build",
     "frontend:preview": "npm --prefix frontend run preview",
-    "dashboard:build": "env PATH=\"$PWD/.tools/go/bin:$PATH\" sh -c 'cd dashboard && go build -o career-dashboard .'",
+    "dashboard:build": "sh -c 'ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd); COMMON_ROOT=$(cd \"$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null || printf \"%s/.git\" \"$ROOT\")/..\" && pwd); export PATH=\"$ROOT/.tools/go/bin:$COMMON_ROOT/.tools/go/bin:$PATH\"; cd \"$ROOT/dashboard\" && go build -o career-dashboard .'",
     "test:quick": "node test-all.mjs --quick",
     "test:full": "node test-all.mjs",
     "dev": "sh -c 'trap \"kill 0\" EXIT INT TERM; npm run backend:dev & npm run frontend:dev & wait'"

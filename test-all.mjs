@@ -122,7 +122,7 @@ try {
 
 if (!QUICK) {
   console.log('\n4. Dashboard build');
-  const goBuild = run('npm', ['run', 'dashboard:build', '--silent'], { stdio: ['pipe', 'pipe', 'pipe'] });
+  const goBuild = run('npm', ['--silent', 'run', 'dashboard:build'], { stdio: ['pipe', 'pipe', 'pipe'] });
   if (goBuild !== null) {
     pass('Dashboard compiles');
   } else {

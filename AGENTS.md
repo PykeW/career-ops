@@ -52,7 +52,6 @@ career-ops/
 │   ├── src/hooks/               # Request lifecycle and state hooks
 │   └── src/lib/                 # API helpers and shared UI state helpers
 ├── shared/contracts/            # Canonical frontend/backend request-response contract
-├── web/                         # Deprecated compatibility shim forwarding to backend
 ├── batch/                       # Batch prompt, runner, logs, and tracker additions
 ├── dashboard/                   # Optional Go terminal UI for tracker browsing/updates
 ├── config/                      # Profile template and local user profile
@@ -181,7 +180,6 @@ cd dashboard && go build -o career-dashboard . && ./career-dashboard --path ..
 - `npm run frontend:build` — build the frontend against current shared contracts
 - `npm run frontend:preview` — preview the built frontend
 - `npm run dev` — run backend + frontend together
-- `npm run web` — deprecated compatibility shim; use split-app commands instead
 
 #### Update flow
 
@@ -195,7 +193,7 @@ cd dashboard && go build -o career-dashboard . && ./career-dashboard --path ..
 2. Keep user-specific data in user-layer files such as `config/profile.yml`, `modes/_profile.md`, `portals.yml`, `data/`, `reports/`, and `output/`.
 3. Reuse the checked-in scripts, templates, and modes rather than creating parallel flows.
 4. Treat `shared/contracts/api-contract.mjs`, `shared/contracts/api-contract.ts`, and `docs/API_CONTRACT.md` as the canonical contract-first boundary for split-app changes.
-5. Keep `web/server.mjs` as a thin deprecated shim only; do not reintroduce business logic there.
+5. Keep app logic inside `frontend/`, `backend/`, and `shared/contracts/`; do not reintroduce a parallel legacy web surface.
 6. Review `batch/README.md` and `batch/batch-prompt.md` together when changing batch behavior.
 7. Build `dashboard/` after Go UI changes.
 8. Follow `CONTRIBUTING.md` for issue-first collaboration, data safety, and prohibited automation.
@@ -256,7 +254,7 @@ At a high level, Career-Ops has five cooperating layers:
 2. **Root automation layer** — root `.mjs` scripts handle scanning, liveness checks, PDF generation, tracker merges, normalization, deduplication, verification, and update flows.
 3. **Split app layer** — `frontend/src/App.tsx` orchestrates a CV editor, profile snapshot card, and tailored resume generator; `backend/routes/api.mjs` and `backend/lib/*.mjs` provide the API surface.
 4. **Shared contract layer** — `shared/contracts/api-contract.*` is the only place where compatibility aliases should intentionally live during migration.
-5. **Operational interfaces** — `batch/` provides parallel worker orchestration, `dashboard/` provides a terminal UI, and `web/server.mjs` remains a deprecated forwarding shim.
+5. **Operational interfaces** — `batch/` provides parallel worker orchestration and `dashboard/` provides a terminal UI.
 
 Typical data flow:
 

@@ -42,7 +42,7 @@ The dedicated local app now has an explicit frontend/backend split:
 - `frontend/src/hooks/useCvDocument.ts`, `frontend/src/hooks/useProfileSnapshot.ts`, and `frontend/src/hooks/useResumeGeneration.ts` own the frontend request lifecycle used by `App.tsx`.
 - `frontend/src/lib/api.ts` should consume canonical response fields first, while `shared/contracts/api-contract.*` remains the only place where compatibility aliases are normalized on purpose.
 - `backend/routes/api.mjs` and the backend libs remain the runtime implementation behind that contract boundary.
-- `web/server.mjs` is a deprecated forwarding shim only and should not regain business logic, and `web/public/` should not grow new hidden contract fallbacks during migration.
+- The dedicated local app runtime now lives entirely in `frontend/`, `backend/`, and `shared/contracts/`.
 
 Minimum validation for split-app or contract changes:
 
@@ -113,14 +113,14 @@ templates/cv-template.html → PDF generation template
 
 Scripts maintain data consistency:
 
-| Script                   | Purpose                                                                                    |
-| ------------------------ | ------------------------------------------------------------------------------------------ |
-| `merge-tracker.mjs`      | Merges batch TSV additions into applications.md                                            |
-| `verify-pipeline.mjs`    | Health check: statuses, duplicates, links                                                  |
-| `dedup-tracker.mjs`      | Removes duplicate entries by company+role                                                  |
-| `normalize-statuses.mjs` | Maps status aliases to canonical values                                                    |
-| `cv-sync-check.mjs`      | Validates setup consistency                                                                |
-| `test-all.mjs --quick`   | Split-app smoke suite covering backend syntax, frontend build, and the deprecated web shim |
+| Script                   | Purpose                                                                             |
+| ------------------------ | ----------------------------------------------------------------------------------- |
+| `merge-tracker.mjs`      | Merges batch TSV additions into applications.md                                     |
+| `verify-pipeline.mjs`    | Health check: statuses, duplicates, links                                           |
+| `dedup-tracker.mjs`      | Removes duplicate entries by company+role                                           |
+| `normalize-statuses.mjs` | Maps status aliases to canonical values                                             |
+| `cv-sync-check.mjs`      | Validates setup consistency                                                         |
+| `test-all.mjs --quick`   | Split-app smoke suite covering backend syntax, frontend build, and core repo checks |
 
 ## Dashboard TUI
 

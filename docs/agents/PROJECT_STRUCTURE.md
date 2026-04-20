@@ -25,7 +25,6 @@ career-ops/
 ├── backend/
 ├── frontend/
 ├── shared/
-├── web/
 ├── batch/
 ├── config/
 ├── dashboard/
@@ -50,7 +49,6 @@ career-ops/
 | `backend/`            | Contains the dedicated local API service used by the split app runtime.                     |
 | `frontend/`           | Contains the Vite + React UI, including `frontend/src/App.tsx` as the main entrypoint.      |
 | `shared/`             | Holds the shared frontend/backend contract helpers and cross-runtime types.                 |
-| `web/`                | Keeps the deprecated forwarding shim for the pre-split backend entrypoint.                  |
 | `config/`             | Holds checked-in configuration templates such as `profile.example.yml`.                     |
 | `modes/`              | Contains the shared workflow instructions plus language-specific mode directories.          |
 | `batch/`              | Stores the batch prompt, runner script, worker logs, and tracker additions.                 |
@@ -77,7 +75,6 @@ career-ops/
 | `frontend/src/App.tsx`             | Main UI entrypoint for the split frontend experience.                |
 | `shared/contracts/api-contract.ts` | Canonical frontend/backend contract helpers and types.               |
 | `backend/server.mjs`               | Dedicated API server entrypoint used by the split app.               |
-| `web/server.mjs`                   | Deprecated shim that forwards to `backend/server.mjs`.               |
 | `config/profile.example.yml`       | Template for the user's `config/profile.yml`.                        |
 | `modes/_profile.template.md`       | Template for the user's personal override file.                      |
 | `templates/portals.example.yml`    | Starter scanner configuration that becomes `portals.yml`.            |

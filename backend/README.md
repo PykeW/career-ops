@@ -10,8 +10,6 @@ The primary local app entrypoints now live at the repository root:
 
 `shared/contracts/api-contract.*` is the canonical frontend/backend boundary. When request or response shapes change, update the shared helpers, align backend + frontend consumers, and keep `docs/API_CONTRACT.md` in sync in the same change.
 
-`npm run web` still works, but it only forwards to `backend/server.mjs` as a deprecated compatibility shim. The split `backend/` + `frontend/` layout is the main development path, and no new business logic should land in `web/server.mjs`.
-
 ## Dev commands
 
 ```bash

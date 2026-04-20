@@ -63,7 +63,6 @@ This reference summarizes how the checked-in modes, scripts, templates, and data
 - Playwright Chromium is the browser boundary for PDF generation and reliable job verification.
 - The scanner template documents direct careers-page access, structured Greenhouse API access, and broader WebSearch-based discovery.
 - `../../shared/contracts/api-contract.*` is the only place where compatibility aliases should intentionally live during migration; new direct alias parsing in `frontend/` or `backend/` is architectural drift.
-- `../../web/server.mjs` remains a deprecated forwarding shim to `../../backend/server.mjs`; keep it thin and verify it stays that way.
 - `../CODEX.md` says new tracker rows should flow through TSV additions and `merge-tracker.mjs`, not direct manual insertion into `data/applications.md`.
 - `../../CLAUDE.md` and `../../CONTRIBUTING.md` both reinforce the same human-in-the-loop rule: the system can prepare applications, but it should not submit them automatically.
 

@@ -37,7 +37,7 @@ This reference keeps the day-to-day commands and validation flow close to `AGENT
 2. Keep user-specific edits in `config/profile.yml`, `modes/_profile.md`, `article-digest.md`, `portals.yml`, or other user-layer paths listed in `../../DATA_CONTRACT.md`.
 3. Reuse the checked-in scripts, modes, and templates instead of introducing duplicate entrypoints or parallel automation.
 4. If you change batch behavior, review `../../batch/README.md` and `../../batch/batch-prompt.md` together.
-5. If you touch the split app boundary (`../../frontend/src/App.tsx`, `../../frontend/src/hooks/`, `../../backend/`, `../../shared/contracts/`, or `../../web/public/` during legacy migration), treat `../../shared/contracts/api-contract.*` as the canonical contract-first boundary and align backend, frontend, and legacy web together before you consider the work done.
+5. If you touch the split app boundary (`../../frontend/src/App.tsx`, `../../frontend/src/hooks/`, `../../backend/`, or `../../shared/contracts/`), treat `../../shared/contracts/api-contract.*` as the canonical contract-first boundary and align backend and frontend before you consider the work done.
 6. Do not add new implicit compatibility parsing outside `../../shared/contracts/`. Any temporary alias or fallback kept for migration must be explicit, documented, and removed once consumers are aligned.
 7. If `npm run backend:check`, `npm run frontend:install && npm run frontend:build`, or `node test-all.mjs --quick` fails for a split-app change, block the migration/cleanup instead of adding more hidden compatibility branches.
 8. If you change dashboard code, build `../../dashboard/` before you consider the work done.
@@ -50,8 +50,8 @@ This reference keeps the day-to-day commands and validation flow close to `AGENT
 - Use `npm run sync-check` after editing shared prompts, profile expectations, or personalization boundaries.
 - Use `npm run backend:check` after backend route/lib changes or shared contract updates.
 - Use `npm run frontend:install && npm run frontend:build` after frontend client changes, especially when `frontend/src/App.tsx` wiring or `shared/contracts/` changes.
-- Use `node test-all.mjs --quick` before opening a PR that touches split-app migration, deprecated shim behavior, or shared contract docs.
-- Treat failures in `npm run backend:check`, `npm run frontend:install && npm run frontend:build`, or `node test-all.mjs --quick` as blocking for contract upgrades, alias retirement, and legacy web migration.
+- Use `node test-all.mjs --quick` before opening a PR that touches split-app behavior, shared contract docs, or split-app cleanup work.
+- Treat failures in `npm run backend:check`, `npm run frontend:install && npm run frontend:build`, or `node test-all.mjs --quick` as blocking for contract upgrades, alias retirement, and split-app cleanup.
 - Use `npm run merge -- --verify` when validating batch tracker additions end to end.
 - Use `npm run normalize -- --dry-run` or `npm run dedup -- --dry-run` before applying tracker maintenance changes.
 - Use `cd dashboard && go build -o career-dashboard .` for dashboard validation.

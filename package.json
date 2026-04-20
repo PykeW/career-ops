@@ -22,8 +22,7 @@
     "frontend:dev": "npm --prefix frontend run dev",
     "frontend:build": "npm --prefix frontend run build",
     "frontend:preview": "npm --prefix frontend run preview",
-    "dev": "sh -c 'trap \"kill 0\" EXIT INT TERM; npm run backend:dev & npm run frontend:dev & wait'",
-    "web": "node web/server.mjs"
+    "dev": "sh -c 'trap \"kill 0\" EXIT INT TERM; npm run backend:dev & npm run frontend:dev & wait'"
   },
   "keywords": [
     "ai",

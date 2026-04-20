@@ -321,18 +321,10 @@ if (fileExists('frontend/package.json')) {
   warn('frontend/package.json missing; split frontend smoke skipped');
 }
 
-if (fileExists('web/server.mjs')) {
-  const webShim = readFile('web/server.mjs');
-  if (
-    webShim.includes('CAREER_OPS_WEB_SHIM_DEPRECATED') &&
-    webShim.includes("../backend/server.mjs")
-  ) {
-    pass('Deprecated web shim stays thin and forwards to backend/server.mjs');
-  } else {
-    fail('web/server.mjs is missing the expected deprecation shim guard');
-  }
+if (!fileExists('web')) {
+  pass('Legacy web compatibility layer removed');
 } else {
-  fail('web/server.mjs missing');
+  fail('web/ still exists; split app should be the only supported local app surface');
 }
 
 // ── SUMMARY ─────────────────────────────────────────────────────

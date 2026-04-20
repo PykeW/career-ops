@@ -1,5 +1,5 @@
 {
   "terminal.integrated.env.linux": {
-    "PATH": "${workspaceFolder}/.tools/go/bin:${env:PATH}"
+    "PATH": "${workspaceFolder}/.tools/go/bin:${workspaceFolder}/../../../../.tools/go/bin:${env:PATH}"
   }
 }

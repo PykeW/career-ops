@@ -22,6 +22,9 @@
     "frontend:dev": "npm --prefix frontend run dev",
     "frontend:build": "npm --prefix frontend run build",
     "frontend:preview": "npm --prefix frontend run preview",
+    "dashboard:build": "env PATH=\"$PWD/.tools/go/bin:$PATH\" sh -c 'cd dashboard && go build -o career-dashboard .'",
+    "test:quick": "node test-all.mjs --quick",
+    "test:full": "node test-all.mjs",
     "dev": "sh -c 'trap \"kill 0\" EXIT INT TERM; npm run backend:dev & npm run frontend:dev & wait'"
   },
   "keywords": [

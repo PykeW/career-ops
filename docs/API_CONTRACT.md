@@ -147,5 +147,5 @@ Frontend usage currently includes:
 - New frontend code should write canonical request fields only (`content`, `jobDescription`, `company`, `targetRole`) and read canonical response fields first.
 - Resume generate request aliases and resume result wrapper aliases (`data.*`, `result.*`) have been removed from `shared/contracts/api-contract.*`. Do not reintroduce alias parsing or alias emission in `backend/` or `frontend/`.
 - When the contract changes, update `shared/contracts/api-contract.mjs`, `shared/contracts/api-contract.d.ts`, and `shared/contracts/api-contract.mjs.d.ts` together, then align backend/frontend consumers and this document in the same PR.
-- Before removing an alias or old response shape, confirm split-app smoke passes (`npm run backend:check`, `npm run frontend:install && npm run frontend:build`, and `node test-all.mjs --quick`) and call out the removal in the PR notes/checklist.
+- Before removing an alias or old response shape, confirm split-app smoke passes (`npm run backend:check`, `npm run frontend:install && npm run frontend:build`, and `npm run test:quick`) and call out the removal in the PR notes/checklist.
 - Contract logic belongs in `backend/`, `frontend/`, and `shared/contracts/` only.

@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "career-ops: dashboard build",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dashboard:build"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "career-ops: full validation",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:full"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "career-ops: quick validation",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:quick"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

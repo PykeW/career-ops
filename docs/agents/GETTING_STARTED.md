@@ -58,8 +58,8 @@ npm run sync-check
 Optional dashboard validation:
 
 ```bash
-cd dashboard && go build -o career-dashboard .
-./career-dashboard --path ..
+npm run dashboard:build
+./dashboard/career-dashboard --path .
 ```
 
 For the fuller setup walkthrough, see [docs/SETUP.md](../SETUP.md) and [docs/CODEX.md](../CODEX.md).

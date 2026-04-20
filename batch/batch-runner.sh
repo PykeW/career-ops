@@ -14,7 +14,6 @@ PROMPT_FILE="$BATCH_DIR/batch-prompt.md"
 LOGS_DIR="$BATCH_DIR/logs"
 TRACKER_DIR="$BATCH_DIR/tracker-additions"
 REPORTS_DIR="$PROJECT_DIR/reports"
-APPLICATIONS_FILE="$PROJECT_DIR/data/applications.md"
 LOCK_FILE="$BATCH_DIR/batch-runner.pid"
 STATE_LOCK_DIR="$BATCH_DIR/.batch-state.lock"
 STATE_LOCK_PID_FILE="$STATE_LOCK_DIR/pid"
@@ -306,7 +305,7 @@ reserve_report_num() {
 
 # Process a single offer
 process_offer() {
-  local id="$1" url="$2" source="$3" notes="$4"
+  local id="$1" url="$2"
 
   local started_at
   started_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -469,9 +468,8 @@ main() {
   local -a pending_ids=()
   local -a pending_urls=()
   local -a pending_sources=()
-  local -a pending_notes=()
 
-  while IFS=$'\t' read -r id url source notes; do
+  while IFS=$'\t' read -r id url source _notes; do
     [[ "$id" == "id" ]] && continue  # skip header
     [[ -z "$id" || -z "$url" ]] && continue
 
@@ -517,7 +515,6 @@ main() {
     pending_ids+=("$id")
     pending_urls+=("$url")
     pending_sources+=("$source")
-    pending_notes+=("$notes")
   done < "$INPUT_FILE"
 
   local pending_count=${#pending_ids[@]}
@@ -548,7 +545,7 @@ main() {
   if (( PARALLEL <= 1 )); then
     # Sequential processing
     for i in "${!pending_ids[@]}"; do
-      process_offer "${pending_ids[$i]}" "${pending_urls[$i]}" "${pending_sources[$i]}" "${pending_notes[$i]}"
+      process_offer "${pending_ids[$i]}" "${pending_urls[$i]}"
     done
   else
     # Parallel processing with job control
@@ -575,7 +572,7 @@ main() {
       done
 
       # Launch worker in background
-      process_offer "${pending_ids[$i]}" "${pending_urls[$i]}" "${pending_sources[$i]}" "${pending_notes[$i]}" &
+      process_offer "${pending_ids[$i]}" "${pending_urls[$i]}" &
       pids+=($!)
       pid_ids+=("${pending_ids[$i]}")
       running=$((running + 1))

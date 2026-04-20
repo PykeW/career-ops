@@ -122,7 +122,7 @@ try {
 
 if (!QUICK) {
   console.log('\n4. Dashboard build');
-  const goBuild = run('cd dashboard && go build -o /tmp/career-dashboard-test . 2>&1');
+  const goBuild = run('npm', ['run', 'dashboard:build', '--silent'], { stdio: ['pipe', 'pipe', 'pipe'] });
   if (goBuild !== null) {
     pass('Dashboard compiles');
   } else {

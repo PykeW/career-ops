@@ -24,6 +24,7 @@ modes/_profile.md
 
 # Generated
 .resolved-prompt-*
+.tools/
 node_modules/
 bun.lock
 
@@ -35,7 +36,8 @@ bun.lock
 # Claude Code local
 .claude/settings.local.json
 .claude/memory/
-career-dashboard
+dashboard/career-dashboard
+dashboard/career-dashboard.exe
 package-lock.json
 .snow
 cv.md

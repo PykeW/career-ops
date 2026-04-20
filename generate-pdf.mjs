@@ -12,14 +12,11 @@
 
 import { chromium } from 'playwright';
 import { resolve, dirname } from 'path';
-import { readFile } from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises';
 import { mkdirSync } from 'fs';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-
-// Ensure output directory exists (fresh setup)
-mkdirSync(resolve(__dirname, 'output'), { recursive: true });
 
 /**
  * Normalize text for ATS compatibility by converting problematic Unicode.
@@ -97,6 +94,7 @@ async function generatePDF() {
 
   inputPath = resolve(inputPath);
   outputPath = resolve(outputPath);
+  mkdirSync(dirname(outputPath), { recursive: true });
 
   // Validate format
   const validFormats = ['a4', 'letter'];
@@ -120,7 +118,7 @@ async function generatePDF() {
   );
   // Close any unclosed quotes from the replacement (handles all font formats)
   html = html.replace(
-    /file:\/\/([^'")]+)\.(woff2?|ttf|otf)['"]?\)/g,
+    /file:\/\/([^'\")]+)\.(woff2?|ttf|otf)['"]?\)/g,
     `file://$1.$2')`
   );
 
@@ -160,7 +158,6 @@ async function generatePDF() {
     });
 
     // Write PDF
-    const { writeFile } = await import('fs/promises');
     await writeFile(outputPath, pdfBuffer);
 
     // Count pages (approximate from PDF structure)

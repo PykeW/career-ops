@@ -50,7 +50,7 @@ Minimum validation for split-app or contract changes:
 npm run backend:check
 npm run frontend:install
 npm run frontend:build
-node test-all.mjs --quick
+npm run test:quick
 ```
 
 ## Evaluation Flow (Single Offer)
@@ -120,7 +120,7 @@ Scripts maintain data consistency:
 | `dedup-tracker.mjs`      | Removes duplicate entries by company+role                                           |
 | `normalize-statuses.mjs` | Maps status aliases to canonical values                                             |
 | `cv-sync-check.mjs`      | Validates setup consistency                                                         |
-| `test-all.mjs --quick`   | Split-app smoke suite covering backend syntax, frontend build, and core repo checks |
+| `npm run test:quick`     | Split-app smoke suite covering backend syntax, frontend build, and core repo checks |
 
 ## Dashboard TUI
 

@@ -12,11 +12,8 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: "20"
-      - uses: actions/setup-go@v6
-        with:
-          go-version: "1.22"
       - run: npm install
       - run: npm run backend:check
       - run: npm run frontend:install
       - run: npm run frontend:build
-      - run: node test-all.mjs --quick
+      - run: npm run test:quick

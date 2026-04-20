@@ -19,10 +19,10 @@ npm run backend:check
 npm run frontend:install
 npm run frontend:dev
 npm run frontend:build
-node test-all.mjs --quick
+npm run test:quick
 ```
 
-Use `npm run backend:check` for backend syntax smoke, `npm run frontend:install && npm run frontend:build` after contract/client changes, and `node test-all.mjs --quick` before opening a PR that touches the split app or shared contract surface.
+Use `npm run backend:check` for backend syntax smoke, `npm run frontend:install && npm run frontend:build` after contract/client changes, and `npm run test:quick` before opening a PR that touches the split app or shared contract surface.
 
 Defaults:
 

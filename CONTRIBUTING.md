@@ -9,6 +9,7 @@ Thanks for your interest in contributing! Career-Ops is built with Claude Code, 
 PRs without a corresponding issue may be closed if they don't align with the project's architecture or goals.
 
 ### What makes a good PR
+
 - Fixes a bug listed in Issues
 - Addresses a feature request that was discussed and approved
 - Includes a clear description of what changed and why
@@ -27,6 +28,7 @@ PRs without a corresponding issue may be closed if they don't align with the pro
 ## What to Contribute
 
 **Good first contributions:**
+
 - Add companies to `templates/portals.example.yml`
 - Translate modes to other languages
 - Improve documentation
@@ -34,6 +36,7 @@ PRs without a corresponding issue may be closed if they don't align with the pro
 - Report bugs via [Issues](https://github.com/santifer/career-ops/issues)
 
 **Bigger contributions:**
+
 - New evaluation dimensions or scoring logic
 - Dashboard TUI features (in `dashboard/`)
 - New skill modes (in `modes/`)
@@ -57,13 +60,14 @@ PRs without a corresponding issue may be closed if they don't align with the pro
 
 ```bash
 # Scripts
-npm run doctor                # Setup validation
-node verify-pipeline.mjs     # Health check
-node cv-sync-check.mjs        # Config check
+npm run doctor         # Setup validation
+npm run verify         # Health check
+npm run sync-check     # Config check
+npm run test:quick     # Split-app smoke suite
 
 # Dashboard
-cd dashboard && go build -o career-dashboard .
-./career-dashboard --path ..
+npm run dashboard:build
+./dashboard/career-dashboard --path .
 ```
 
 ## Need Help?

@@ -16,7 +16,7 @@ This guide condenses the checked-in setup flow for Codex and Claude users while 
 - A Codex client that reads `../../AGENTS.md` or Claude Code configured for this repository.
 - Node.js 18+ for the root automation scripts.
 - Playwright Chromium for PDF generation and browser-based verification.
-- Go 1.21+ if you want to build the dashboard; `../../dashboard/go.mod` currently declares `go 1.24.2`.
+- Optional: Go 1.24.2 if you want to run dashboard `go` commands directly; prefer `npm run dashboard:build`, which prepends `.tools/go/bin` before any system Go.
 - If you plan to use batch processing, `../../batch/README.md` expects a working `claude` CLI in `PATH`.
 
 ## Installation
@@ -61,6 +61,8 @@ Optional dashboard validation:
 npm run dashboard:build
 ./dashboard/career-dashboard --path .
 ```
+
+`npm run dashboard:build` prefers the workspace-local Go toolchain in `.tools/go/bin` before any system `go`.
 
 For the fuller setup walkthrough, see [docs/SETUP.md](../SETUP.md) and [docs/CODEX.md](../CODEX.md).
 

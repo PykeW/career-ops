@@ -4,7 +4,7 @@
 
 - [Claude Code](https://claude.ai/code) installed and configured
 - Node.js 18+ (for PDF generation and utility scripts)
-- (Optional) Go 1.21+ (for the dashboard TUI)
+- (Optional) Go 1.24.2 if you want to run dashboard `go` commands directly; normal dashboard builds should use `npm run dashboard:build`
 
 ## Quick Start (5 steps)
 
@@ -70,8 +70,10 @@ Then paste a job offer URL or description. Career-ops will automatically evaluat
 ## Verify Setup
 
 ```bash
-node cv-sync-check.mjs      # Check configuration
-node verify-pipeline.mjs     # Check pipeline integrity
+npm run doctor         # Check prerequisites and required files
+npm run verify         # Check pipeline integrity
+npm run sync-check     # Check configuration consistency
+npm run test:quick     # Optional smoke suite for split-app changes
 ```
 
 ## Build Dashboard (Optional)
@@ -80,3 +82,5 @@ node verify-pipeline.mjs     # Check pipeline integrity
 npm run dashboard:build
 ./dashboard/career-dashboard --path .  # Opens the TUI from the repo root
 ```
+
+`npm run dashboard:build` prefers the workspace-local Go toolchain in `.tools/go/bin` before any system `go`.

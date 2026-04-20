@@ -66,25 +66,25 @@ career-ops/
 
 ## Key Entrypoints
 
-| File or path                       | Why it matters                                                       |
-| ---------------------------------- | -------------------------------------------------------------------- |
-| `AGENTS.md`                        | Codex-facing entry document and navigation hub.                      |
-| `CLAUDE.md`                        | Canonical agent workflow instructions and onboarding behavior.       |
-| `DATA_CONTRACT.md`                 | Source of truth for user-layer versus system-layer boundaries.       |
-| `docs/CODEX.md`                    | Explains how Codex should route into the existing modes and scripts. |
-| `frontend/src/App.tsx`             | Main UI entrypoint for the split frontend experience.                |
-| `shared/contracts/api-contract.ts` | Canonical frontend/backend contract helpers and types.               |
-| `backend/server.mjs`               | Dedicated API server entrypoint used by the split app.               |
-| `config/profile.example.yml`       | Template for the user's `config/profile.yml`.                        |
-| `modes/_profile.template.md`       | Template for the user's personal override file.                      |
-| `templates/portals.example.yml`    | Starter scanner configuration that becomes `portals.yml`.            |
-| `scan.mjs`                         | Portal scanner entrypoint exposed as `npm run scan`.                 |
-| `generate-pdf.mjs`                 | HTML-to-PDF renderer exposed as `npm run pdf`.                       |
-| `merge-tracker.mjs`                | Merges batch tracker additions into `data/applications.md`.          |
-| `verify-pipeline.mjs`              | Validates tracker integrity and report links.                        |
-| `batch/batch-runner.sh`            | Orchestrates batch evaluation with `claude -p` workers.              |
-| `dashboard/main.go`                | Main entrypoint for the Go dashboard application.                    |
-| `.opencode/commands/career-ops.md` | Default OpenCode entrypoint for the checked-in command set.          |
+| File or path                        | Why it matters                                                       |
+| ----------------------------------- | -------------------------------------------------------------------- |
+| `AGENTS.md`                         | Codex-facing entry document and navigation hub.                      |
+| `CLAUDE.md`                         | Canonical agent workflow instructions and onboarding behavior.       |
+| `DATA_CONTRACT.md`                  | Source of truth for user-layer versus system-layer boundaries.       |
+| `docs/CODEX.md`                     | Explains how Codex should route into the existing modes and scripts. |
+| `frontend/src/App.tsx`              | Main UI entrypoint for the split frontend experience.                |
+| `shared/contracts/api-contract.mjs` | Canonical frontend/backend contract runtime helpers.                 |
+| `backend/server.mjs`                | Dedicated API server entrypoint used by the split app.               |
+| `config/profile.example.yml`        | Template for the user's `config/profile.yml`.                        |
+| `modes/_profile.template.md`        | Template for the user's personal override file.                      |
+| `templates/portals.example.yml`     | Starter scanner configuration that becomes `portals.yml`.            |
+| `scan.mjs`                          | Portal scanner entrypoint exposed as `npm run scan`.                 |
+| `generate-pdf.mjs`                  | HTML-to-PDF renderer exposed as `npm run pdf`.                       |
+| `merge-tracker.mjs`                 | Merges batch tracker additions into `data/applications.md`.          |
+| `verify-pipeline.mjs`               | Validates tracker integrity and report links.                        |
+| `batch/batch-runner.sh`             | Orchestrates batch evaluation with `claude -p` workers.              |
+| `dashboard/main.go`                 | Main entrypoint for the Go dashboard application.                    |
+| `.opencode/commands/career-ops.md`  | Default OpenCode entrypoint for the checked-in command set.          |
 
 For canonical workflow boundaries, also review [DATA_CONTRACT.md](../../DATA_CONTRACT.md), [CLAUDE.md](../../CLAUDE.md), and [docs/CODEX.md](../CODEX.md).
 

@@ -1,5 +1,4 @@
 import {
-  buildResumeGenerateRequest,
   type LinkEntry,
   type MetadataEntry,
   type ProfileSnapshot,
@@ -27,12 +26,6 @@ export interface ResultState {
 export interface CvStatus {
   tone: Tone;
   label: string;
-}
-
-export interface ResumeRequestInput {
-  company: string;
-  role: string;
-  jobDescription: string;
 }
 
 export const INITIAL_RESULT_STATE: ResultState = {
@@ -150,16 +143,6 @@ export function createGenerationErrorResult(message: string): ResultState {
     previewMarkdown: "",
     notes: [],
   };
-}
-
-export function buildResumeRequest(
-  input: ResumeRequestInput
-): Record<string, string> {
-  return buildResumeGenerateRequest({
-    jobDescription: input.jobDescription,
-    company: input.company,
-    targetRole: input.role,
-  });
 }
 
 export function getCvStatus(

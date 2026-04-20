@@ -1,16 +1,20 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from "react";
 
-import { extractResumeResult, fetchJson, getErrorMessage } from '../lib/api';
+import {
+  buildResumeGenerateRequest,
+  extractResumeResult,
+  fetchJson,
+  getErrorMessage,
+} from "../lib/api";
 import {
   INITIAL_RESULT_STATE,
-  buildResumeRequest,
   createEmptyJobDescriptionResult,
   createGeneratingResult,
   createGenerationErrorResult,
   createGenerationSuccessResult,
   getGenerateHint,
   type ResultState,
-} from '../lib/app-state';
+} from "../lib/app-state";
 
 interface UseResumeGenerationOptions {
   cvMissing: boolean;
@@ -35,10 +39,12 @@ interface UseResumeGenerationResult {
   handleGenerate: (event: FormEvent<HTMLFormElement>) => Promise<void>;
 }
 
-export function useResumeGeneration(options: UseResumeGenerationOptions): UseResumeGenerationResult {
-  const [company, setCompany] = useState('');
-  const [role, setRole] = useState('');
-  const [jobDescription, setJobDescription] = useState('');
+export function useResumeGeneration(
+  options: UseResumeGenerationOptions
+): UseResumeGenerationResult {
+  const [company, setCompany] = useState("");
+  const [role, setRole] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState<ResultState>(INITIAL_RESULT_STATE);
 
@@ -51,11 +57,20 @@ export function useResumeGeneration(options: UseResumeGenerationOptions): UseRes
   }, [options.suggestedRole]);
 
   const hasJobDescription = Boolean(jobDescription.trim());
-  const generateHint = getGenerateHint(options.cvMissing, options.cvText, options.hasLocalEdits);
-  const generateButtonLabel = generating ? 'Generating...' : 'Generate Markdown resume';
-  const generateDisabled = generating || !hasJobDescription || options.cvMissing;
+  const generateHint = getGenerateHint(
+    options.cvMissing,
+    options.cvText,
+    options.hasLocalEdits
+  );
+  const generateButtonLabel = generating
+    ? "Generating..."
+    : "Generate Markdown resume";
+  const generateDisabled =
+    generating || !hasJobDescription || options.cvMissing;
 
-  async function handleGenerate(event: FormEvent<HTMLFormElement>): Promise<void> {
+  async function handleGenerate(
+    event: FormEvent<HTMLFormElement>
+  ): Promise<void> {
     event.preventDefault();
 
     if (generating) {
@@ -75,27 +90,32 @@ export function useResumeGeneration(options: UseResumeGenerationOptions): UseRes
     setResult(createGeneratingResult(options.hasLocalEdits));
 
     try {
-      const payloadResponse = await fetchJson('resume/generate', {
-        method: 'POST',
+      const payloadResponse = await fetchJson("resume/generate", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(
-          buildResumeRequest({
+          buildResumeGenerateRequest({
             company,
-            role,
+            targetRole: role,
             jobDescription,
-          }),
+          })
         ),
       });
 
       const resumeResult = extractResumeResult(payloadResponse);
-      setResult(createGenerationSuccessResult(resumeResult, trimmedCompany, trimmedRole));
+      setResult(
+        createGenerationSuccessResult(resumeResult, trimmedCompany, trimmedRole)
+      );
     } catch (error) {
       setResult(
         createGenerationErrorResult(
-          getErrorMessage(error, 'The backend could not generate a tailored Markdown resume right now.'),
-        ),
+          getErrorMessage(
+            error,
+            "The backend could not generate a tailored Markdown resume right now."
+          )
+        )
       );
     } finally {
       setGenerating(false);

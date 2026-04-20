@@ -7,10 +7,7 @@ import { getCvDocument, getProfileDocument, saveCvDocument } from '../lib/data.m
 import { createHttpError, asyncHandler } from '../lib/http.mjs';
 import { getProjectPaths } from '../lib/project-paths.mjs';
 import { generateResume } from '../lib/resume.mjs';
-import {
-  normalizeCvRequest,
-  normalizeResumeGenerateRequest,
-} from '../../shared/contracts/api-contract.mjs';
+import { normalizeCvRequest } from '../../shared/contracts/api-contract.mjs';
 
 export function createApiRouter(env = process.env) {
   const router = express.Router();
@@ -45,8 +42,7 @@ export function createApiRouter(env = process.env) {
   }));
 
   router.post('/resume/generate', asyncHandler(async (req, res) => {
-    const resumeRequest = normalizeResumeGenerateRequest(req.body);
-    const result = await generateResume(paths, resumeRequest);
+    const result = await generateResume(paths, req.body);
 
     res.status(201).json(result);
   }));

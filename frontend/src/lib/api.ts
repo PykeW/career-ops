@@ -1,4 +1,6 @@
 import {
+  buildCvRequest as buildContractCvRequest,
+  buildResumeGenerateRequest as buildContractResumeGenerateRequest,
   normalizeCvResponse,
   normalizeErrorPayload,
   normalizeProfileResponse,
@@ -8,7 +10,7 @@ import {
   type ContractProfileResponse,
   type ContractResumeGenerateRequest,
   type ContractResumeResult,
-} from "../../../shared/contracts/api-contract";
+} from "../../../shared/contracts/api-contract.mjs";
 
 export interface CvDocument extends ContractCvResponse {}
 
@@ -95,35 +97,13 @@ export async function fetchJson<T = unknown>(
 }
 
 export function buildCvRequest(content: string): { content: string } {
-  return {
-    content: typeof content === "string" ? content : "",
-  };
+  return buildContractCvRequest(content);
 }
 
 export function buildResumeGenerateRequest(
   payload: ContractResumeGenerateRequest
 ): Record<string, string> {
-  const jobDescription =
-    typeof payload.jobDescription === "string"
-      ? payload.jobDescription.trim()
-      : "";
-  const company =
-    typeof payload.company === "string" ? payload.company.trim() : "";
-  const targetRole =
-    typeof payload.targetRole === "string" ? payload.targetRole.trim() : "";
-  const request: Record<string, string> = {
-    jobDescription,
-  };
-
-  if (company) {
-    request.company = company;
-  }
-
-  if (targetRole) {
-    request.targetRole = targetRole;
-  }
-
-  return request;
+  return buildContractResumeGenerateRequest(payload);
 }
 
 export function extractCvDocument(payload: unknown): CvDocument {

@@ -126,9 +126,9 @@ All error responses should conform to:
 
 The shared contract layer lives in:
 
-- `shared/contracts/api-contract.mjs` for backend/runtime normalization and response builders
-- `shared/contracts/api-contract.ts` for frontend/client helpers and types
+- `shared/contracts/api-contract.mjs` for runtime normalization, response builders, and shared frontend/backend helpers
 - `shared/contracts/api-contract.d.ts` for lightweight cross-project typing support
+- `shared/contracts/api-contract.mjs.d.ts` for TypeScript consumers that import the runtime `.mjs` file directly
 
 Backend usage currently includes:
 
@@ -146,6 +146,6 @@ Frontend usage currently includes:
 
 - New frontend code should write canonical request fields only (`content`, `jobDescription`, `company`, `targetRole`) and read canonical response fields first.
 - Resume generate request aliases and resume result wrapper aliases (`data.*`, `result.*`) have been removed from `shared/contracts/api-contract.*`. Do not reintroduce alias parsing or alias emission in `backend/` or `frontend/`.
-- When the contract changes, update `shared/contracts/api-contract.mjs`, `shared/contracts/api-contract.ts`, and `shared/contracts/api-contract.d.ts` together, then align backend/frontend consumers and this document in the same PR.
+- When the contract changes, update `shared/contracts/api-contract.mjs`, `shared/contracts/api-contract.d.ts`, and `shared/contracts/api-contract.mjs.d.ts` together, then align backend/frontend consumers and this document in the same PR.
 - Before removing an alias or old response shape, confirm split-app smoke passes (`npm run backend:check`, `npm run frontend:install && npm run frontend:build`, and `node test-all.mjs --quick`) and call out the removal in the PR notes/checklist.
 - Contract logic belongs in `backend/`, `frontend/`, and `shared/contracts/` only.

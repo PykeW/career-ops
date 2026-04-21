@@ -132,36 +132,7 @@ func (m ViewerModel) renderHeader() string {
 		Padding(0, 2)
 
 	title := lipgloss.NewStyle().Bold(true).Foreground(m.theme.Blue).Render(m.title)
-
 	right := lipgloss.NewStyle().Foreground(m.theme.Subtext)
-	pos := right.Render(strings.TrimRight(
-		strings.Repeat(" ", max(0, m.width-lipgloss.Width(m.title)-30)),
-		" ",
-	))
-
-	lineInfo := right.Render(
-		strings.Join([]string{
-			"L",
-			strings.TrimSpace(lipgloss.NewStyle().Render(
-				strings.Join([]string{
-					func() string {
-						s := m.scrollOffset + 1
-						if s > len(m.lines) {
-							s = len(m.lines)
-						}
-						return string(rune('0'+s/100%10)) + string(rune('0'+s/10%10)) + string(rune('0'+s%10))
-					}(),
-				}, ""),
-			)),
-			"/",
-			func() string {
-				t := len(m.lines)
-				return string(rune('0'+t/100%10)) + string(rune('0'+t/10%10)) + string(rune('0'+t%10))
-			}(),
-		}, ""),
-	)
-	_ = pos
-	_ = lineInfo
 
 	scroll := right.Render(func() string {
 		if len(m.lines) == 0 {
@@ -230,7 +201,7 @@ func (m ViewerModel) renderBody() string {
 
 			// Compute column widths from the full table, render only visible rows
 			colWidths := computeColumnWidths(fullTable, m.width-6)
-			rendered := m.renderTableBlock(tableLines, colWidths, fullTableStart)
+			rendered := m.renderTableBlock(tableLines, colWidths)
 			styled = append(styled, rendered...)
 		} else {
 			styled = append(styled, m.styleLine(visible[i]))
@@ -239,6 +210,7 @@ func (m ViewerModel) renderBody() string {
 	}
 
 	// Pad to fill height
+
 	for len(styled) < bh {
 		styled = append(styled, "")
 	}
@@ -355,9 +327,9 @@ func computeColumnWidths(lines []string, maxTotal int) []int {
 
 	return widths
 }
-
 // renderTableBlock renders table lines with aligned columns and box-drawing borders.
-func (m ViewerModel) renderTableBlock(lines []string, colWidths []int, firstLineIdx int) []string {
+func (m ViewerModel) renderTableBlock(lines []string, colWidths []int) []string {
+
 	if len(lines) == 0 || len(colWidths) == 0 {
 		// Fallback: render as plain text
 		var result []string
